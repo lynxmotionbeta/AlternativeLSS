@@ -105,9 +105,8 @@ set(LYNXMOTIONLSS_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "Location
 set(LYNXMOTIONLSS_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "Location of LynxmotionLSS binaries")
 
 add_subdirectory(lib)
+add_subdirectory(tests)
 add_subdirectory(examples)
-#add_subdirectory(tests)
-
 
 include_directories(lynxmotion-lss/analytics)
 
