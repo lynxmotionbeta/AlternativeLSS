@@ -77,36 +77,51 @@ void CompliantJoint::update(unsigned long tsnow)
                     ? currentNegativeBias.value()
                     : 0;
 
-        auto old_currentBias = currentBias;
+        // shadow it for gain
+        int _gravityBias = gravityBias * 6;
 
-        auto lim = currentLimit;
-        if(neg_polarity && gravityBias>0)
-            lim += gravityBias;
-        else if(pos_polarity && gravityBias<0)
-            lim += gravityBias;
+        int gravityLim = 0;
+        if(pos_polarity && _gravityBias>0)
+            gravityLim += _gravityBias;
+        else if(neg_polarity && _gravityBias<0)
+            gravityLim -= _gravityBias;     // double minus cancel
+        else if (!neg_polarity && !pos_polarity)
+            gravityLim += abs(_gravityBias);    // if we are holding then we still need to add gravityBias (just doenst matter the direction)
 
 
-        int unbiasedCurrent = current.current() - currentBias;
-        bool limit = unbiasedCurrent > lim;
+        int limp_limit = (currentLimit + gravityLim) * 1.4;        // our limp limit
+        int duty_limit = (currentLimit + gravityLim) * 3;        // servo commanded limit
+        bool limit_exceeded = current.current().value() > limp_limit;
         //int amps_velocity = -current.current().velocity();
 
+#if 0
         if(name == "J14")
-            printf("%s  %d |%c| G%d => %d | %d+%d:%d (%4.1f)\n",
+            printf("%s  dx:%d bias:%d |%c| Gb%d => Cb%d | %d+%d:%d (%4.1f)\n",
                     name.c_str(),
-                    old_currentBias, pos_polarity ? '+' : neg_polarity ? '-' : '*', gravityBias, currentBias,
+                    dx, old_currentBias, pos_polarity ? '+' : neg_polarity ? '-' : '*', gravityBias, currentBias,
                     current.current().value(), currentBias, currentLimit, (double)unbiasedCurrent*100/currentLimit
             );
+#else
+        if(name == "J14*" || name == "J13")
+            printf("%s  p:%d dx:%d mA:%d | bias: [%c] B%d G%d | lim: L%d+G%d=>%d duty:%d %s\n",
+                   name.c_str(),
+                   /*    p: */  position.current().value(), dx, current.current().value(),
+                   /* bias: */  pos_polarity ? '+' : neg_polarity ? '-' : '*', currentBias, _gravityBias,
+                   /*  lim: */  currentLimit, gravityLim, limp_limit, duty_limit, limit_exceeded ? "limit" : ""
+            );
+#endif
 
         unsigned long stateTime = millis() - stateChanged;
-        bool idle = position.current().velocity()==0 && !limit;
+        bool idle = position.current().velocity()==0 && !limit_exceeded;
 
 
         switch(state) {
             case Holding:
                 // check if we are over current limit
-                mmd.target(600);
+                // todo: switch this to asymmetric MMD command using #[id]MMD[dutyPos],[dutyNeg]\r
+                mmd.target(clamp(duty_limit, 500, 1200));
                 CPR(3);
-                if(limit) {
+                if(limit_exceeded) {
                     if(pos_polarity)
                         transitionTo(PositiveCompliance);
                     else if (neg_polarity)
