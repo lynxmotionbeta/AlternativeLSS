@@ -95,4 +95,4 @@ set(LYNXMOTIONLSS_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "Location
 
 add_subdirectory(lib)
 add_subdirectory(examples)
-#add_subdirectory(tests)
+add_subdirectory(tests)
