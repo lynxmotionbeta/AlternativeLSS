@@ -2,7 +2,7 @@
 #include "LssCommunication.h"
 
 #define ACCEPT(cmdid)  { operator|=(cmdid); return (cmdid) != LssInvalid; }
-#define SWITCH(cmdid)  if(*pkt==0 || !isalpha(*pkt)) ACCEPT(cmdid) else switch (*pkt++)
+#define SWITCH(cmdid)  if(*pkt==0 || !isalpha(*pkt)) ACCEPT(cmdid) else switch (toupper(*pkt++))
 
 
 bool LssCommand::parse(const char*& pkt)
@@ -24,10 +24,10 @@ bool LssCommand::parse(const char*& pkt)
    *  aware the char to test is *pkt.
    */
 
-  if(*pkt == 'Q') {
+  if(toupper(*pkt) == 'Q') {
       pkt++;
       goto queries;
-  } else if(*pkt == 'C') {
+  } else if(toupper(*pkt) == 'C') {
       pkt++;
       goto config;
   }

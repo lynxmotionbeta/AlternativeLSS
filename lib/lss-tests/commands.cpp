@@ -83,6 +83,18 @@ TEST_PARSE_COMMAND("QV", LssQuery|LssVoltage);
 TEST_PARSE_COMMAND("QT", LssQuery|LssTemperature);
 TEST_PARSE_COMMAND("QC", LssQuery|LssCurrent);
 
+// lower case commands
+TEST_PARSE_COMMAND("q", LssStatus);
+TEST_PARSE_COMMAND("qv", LssQuery|LssVoltage);
+TEST_PARSE_COMMAND("qt", LssQuery|LssTemperature);
+TEST_PARSE_COMMAND("qc", LssQuery|LssCurrent);
+TEST_PARSE_COMMAND("p", LssPosition|LssPulse);
+TEST_PARSE_COMMAND("d", LssPosition|LssDegrees);
+TEST_PARSE_COMMAND("cled", LssConfig|LssLEDColor);
+TEST_PARSE_COMMAND("csd", LssConfig|LssMaxSpeed|LssDegrees);
+
+
+
 // config commands
 TEST_PARSE_COMMAND("CO", LssConfig|LssOriginOffset);
 TEST_PARSE_COMMAND("CAR", LssConfig|LssAngularRange);
