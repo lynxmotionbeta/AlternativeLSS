@@ -40,7 +40,7 @@ void test_serialize_packet(const char* pkt, LynxPacket packet)
  *   Packet Parse Unit Tests
  */
 TEST_PACKET_PARSE("1L", 1, LssLimp)
-TEST_PACKET_PARSE("2Q", 2, LssQuery)
+TEST_PACKET_PARSE("2Q", 2, LssStatus)
 TEST_PACKET_PARSE("24LED", 24, LssLEDColor)
 TEST_PACKET_PARSE("24LED5", 24, LssLEDColor, 5)
 TEST_PACKET_PARSE("2D905", 2, LssPosition|LssDegrees, 905)

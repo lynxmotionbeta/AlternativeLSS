@@ -1,10 +1,11 @@
 
 #include "LssCommunication.h"
 
-#define ACCEPT(cmdid) return (LssCommands)(cmdid);
+#define ACCEPT(cmdid)  { operator|=(cmdid); return cmdid != LssInvalid; }
 #define SWITCH(cmdid)  if(*pkt==0 || !isalpha(*pkt)) ACCEPT(cmdid) else switch (*pkt++)
 
-LssCommands LynxPacket::parseCommand(const char*& pkt) 
+
+bool LssCommand::parse(const char*& pkt)
 {
   /*  This code might be a bit confusing but it is much faster than a bunch of string
    *  comparisons. This is technically called a "Trie" or prefix tree.
@@ -22,6 +23,16 @@ LssCommands LynxPacket::parseCommand(const char*& pkt)
    *  argument to SWITCH is the cmdid if we find a stop char and SWITCH is internally 
    *  aware the char to test is *pkt.
    */
+
+  if(*pkt == 'Q') {
+      pkt++;
+      goto queries;
+  } else if(*pkt == 'C') {
+      pkt++;
+      goto config;
+  }
+
+actions:
   SWITCH(LssInvalid) {
     case 'L': SWITCH(LssLimp) {
       case 'E': SWITCH(LssInvalid) {
@@ -66,203 +77,201 @@ LssCommands LynxPacket::parseCommand(const char*& pkt)
       case 'D': ACCEPT(LssMaxSpeed|LssDegrees);
       case 'R': ACCEPT(LssMaxSpeed|LssRPM);
     }      
-    
-    case 'Q': SWITCH(LssQuery) {
-      case 'O': ACCEPT(LssQuery|LssOriginOffset);
-      case 'A': SWITCH(LssInvalid) {
-        case 'R': ACCEPT(LssQuery|LssAngularRange);
-        case 'S': ACCEPT(LssQuery|LssAngularStiffness);
-        case 'H': ACCEPT(LssQuery|LssAngularHoldingStiffness);
-      }
-      case 'P': ACCEPT(LssQuery|LssPosition|LssPulse);
-      case 'D': SWITCH(LssQuery|LssPosition|LssDegrees) {
-        case 'T': ACCEPT(LssQuery|LssTarget);
-      }
-      case 'W': SWITCH(LssInvalid) {
-        case 'D': ACCEPT(LssQuery|LssWheelMode|LssDegrees);
-        case 'R': ACCEPT(LssQuery|LssWheelMode|LssRPM);
-      }
-      case 'S': SWITCH(LssInvalid) {
-        case 'D': ACCEPT(LssQuery|LssMaxSpeed|LssDegrees);
-        case 'R': ACCEPT(LssQuery|LssMaxSpeed|LssRPM);
-      }
-      case 'L': SWITCH(LssInvalid) {
-        case 'E': SWITCH(LssInvalid) {
-          case 'D': ACCEPT(LssQuery|LssLEDColor);
-        }
-      }
-      case 'I': SWITCH(LssInvalid) {
-        case 'D': ACCEPT(LssQuery|LssID);
-      }
-      case 'B': ACCEPT(LssQuery|LssBaudRate);
-      case 'G': ACCEPT(LssQuery|LssGyreDirection);
-      // FirstPOsition Pulse/Degrees
-      // Midel, SerialNumber, FirmwareVersion
-      case 'V': ACCEPT(LssQuery|LssVoltage);
-      case 'T': ACCEPT(LssQuery|LssTemperature);
-      case 'C': ACCEPT(LssQuery|LssCurrent);
-    }
-
-    case 'C': SWITCH(LssInvalid) {
-      case 'O': SWITCH(LssConfig|LssOriginOffset) {
-        case 'N': SWITCH(LssInvalid) {
-        case 'F': SWITCH(LssInvalid) {
-        case 'I': SWITCH(LssInvalid) {
-        case 'R': SWITCH(LssInvalid) {
-        case 'M': SWITCH(LssConfirm) {
-        }}}}}
-      }
-      case 'A': SWITCH(LssInvalid) {
-        case 'R': ACCEPT(LssConfig|LssAngularRange);
-        case 'S': ACCEPT(LssConfig|LssAngularStiffness);
-        case 'H': ACCEPT(LssConfig|LssAngularHoldingStiffness);
-      }
-      case 'S': SWITCH(LssInvalid) {
-        case 'D': ACCEPT(LssConfig|LssMaxSpeed|LssDegrees);
-        case 'R': ACCEPT(LssConfig|LssMaxSpeed|LssRPM);
-      }
-      case 'L': SWITCH(LssInvalid) {
-        case 'E': SWITCH(LssInvalid) {
-          case 'D': ACCEPT(LssConfig|LssLEDColor);
-        }
-      }
-      case 'M': SWITCH(LssInvalid) {
-        case 'M': SWITCH(LssInvalid) {
-           case 'D': ACCEPT(LssAction|LssMaxDuty);
-        }
-      }
-      case 'I': SWITCH(LssInvalid) {
-        case 'D': ACCEPT(LssConfig|LssID);
-      }
-      case 'B': ACCEPT(LssConfig|LssBaudRate);
-      case 'G': ACCEPT(LssConfig|LssGyreDirection);
-      // FirstPOsition Pulse/Degrees
-    }
   }
-  //OSCOPE_TRIGGER
-  //Serial.print("INVCMD ");
-  //Serial.println(keep_ptr);
-  return LssInvalid;
+  return false;
+  
+queries:
+  mode = LssQuery;
+  SWITCH(LssStatus) {
+    case 'O': ACCEPT(LssOriginOffset);
+    case 'A': SWITCH(LssInvalid) {
+      case 'R': ACCEPT(LssAngularRange);
+      case 'S': ACCEPT(LssAngularStiffness);
+      case 'H': ACCEPT(LssAngularHoldingStiffness);
+    }
+    case 'P': ACCEPT(LssPosition|LssPulse);
+    case 'D': SWITCH(LssPosition|LssDegrees) {
+      case 'T': ACCEPT(LssTarget);
+    }
+    case 'W': SWITCH(LssInvalid) {
+      case 'D': ACCEPT(LssWheelMode|LssDegrees);
+      case 'R': ACCEPT(LssWheelMode|LssRPM);
+    }
+    case 'S': SWITCH(LssInvalid) {
+      case 'D': ACCEPT(LssMaxSpeed|LssDegrees);
+      case 'R': ACCEPT(LssMaxSpeed|LssRPM);
+    }
+    case 'L': SWITCH(LssInvalid) {
+      case 'E': SWITCH(LssInvalid) {
+        case 'D': ACCEPT(LssLEDColor);
+      }
+    }
+    case 'I': SWITCH(LssInvalid) {
+      case 'D': ACCEPT(LssID);
+    }
+    case 'B': ACCEPT(LssBaudRate);
+    case 'G': ACCEPT(LssGyreDirection);
+    // FirstPOsition Pulse/Degrees
+    // Midel, SerialNumber, FirmwareVersion
+    case 'V': ACCEPT(LssVoltage);
+    case 'T': ACCEPT(LssTemperature);
+    case 'C': ACCEPT(LssCurrent);
+  }
+  return false;
+
+config:
+  mode = LssConfig;
+  SWITCH(LssInvalid) {
+    case 'O': SWITCH(LssOriginOffset) {
+      case 'N': SWITCH(LssInvalid) {
+      case 'F': SWITCH(LssInvalid) {
+      case 'I': SWITCH(LssInvalid) {
+      case 'R': SWITCH(LssInvalid) {
+      case 'M': SWITCH(LssConfirm) {
+      }}}}}
+    }
+    case 'A': SWITCH(LssInvalid) {
+      case 'R': ACCEPT(LssAngularRange);
+      case 'S': ACCEPT(LssAngularStiffness);
+      case 'H': ACCEPT(LssAngularHoldingStiffness);
+    }
+    case 'S': SWITCH(LssInvalid) {
+      case 'D': ACCEPT(LssMaxSpeed|LssDegrees);
+      case 'R': ACCEPT(LssMaxSpeed|LssRPM);
+    }
+    case 'L': SWITCH(LssInvalid) {
+      case 'E': SWITCH(LssInvalid) {
+        case 'D': ACCEPT(LssLEDColor);
+      }
+    }
+    case 'M': SWITCH(LssInvalid) {
+      case 'M': SWITCH(LssInvalid) {
+         case 'D': ACCEPT(LssMaxDuty);
+      }
+    }
+    case 'I': SWITCH(LssInvalid) {
+      case 'D': ACCEPT(LssID);
+    }
+    case 'B': ACCEPT(LssBaudRate);
+    case 'G': ACCEPT(LssGyreDirection);
+    // FirstPOsition Pulse/Degrees
+  }
+  return false;
 }
 
-char* LynxPacket::commandCode(LssCommands cmd, char* out) 
+char* LssCommand::commandCode(char* out) const
 {
   char* pout = out;
-  if((cmd & LssQuery) >0)
-    *pout++ = 'Q';
-  else if((cmd & LssConfig) >0)
-    *pout++ = 'C';
-
-  LssCommands unit = cmd & LssUnits;
+  switch(mode) {
+      case LssQuery: *pout++ = 'Q'; break;
+      case LssConfig: *pout++ = 'C'; break;
+  }
 
   // filter out the member flag
-  LssCommands member = cmd & (LssCommandSet & ~LssQuery); // LssQuery, that special command
-  if(member != 0) {
-      switch(member) {
-        case 0: // LssQuery command
-          break;
-        case LssID:
-          *pout++ = 'I';
-          *pout++ = 'D';
-          break;
-        case LssLimp:
-          *pout++ = 'L';
-          break;
-        case LssHaltAndHold:
-          *pout++ = 'H';
-          break;
-        case LssPosition:
-          *pout++ = (unit == LssPulse) ? 'P' : 'D';
-          break;
-        case LssTarget:
-          *pout++ = 'D';
-          *pout++ = 'T';
-          break;
-        case LssFirstPosition:
-          *pout++ = 'F';
-          *pout++ = (unit == LssPulse) ? 'P' : 'D';
-          break;
-        case LssWheelMode:
-          *pout++ = 'W';
-          *pout++ = (unit == LssRPM) ? 'R' : 'D';
-          break;
-        case LssMaxSpeed:
-          *pout++ = 'S';
-          *pout++ = (unit == LssRPM) ? 'R' : 'D';
-          break;
-        case LssVoltage:
-          *pout++ = 'V';
-          break;
-        case LssCurrent:
-          *pout++ = 'C';
-          break;
-        case LssTemperature:
-          *pout++ = 'T';
-          break;
-        case LssAngularRange:
-          *pout++ = 'A';
-          *pout++ = 'R';
-          break;
-        case LssAngularStiffness:
-          *pout++ = 'A';
-          *pout++ = 'S';
-          break;
-      case LssAngularHoldingStiffness:
-          *pout++ = 'A';
-          *pout++ = 'H';
-          break;
-        case LssLEDColor:
-          *pout++ = 'L';
-          *pout++ = 'E';
-          *pout++ = 'D';
-          break;
-        case LssBaudRate:
-          *pout++ = 'B';
-          break;
-        case LssGyreDirection:
-          *pout++ = 'G';
-          break;
-        case LssOriginOffset:
-          *pout++ = 'O';
-          break;
-      case LssMotionControl:
-          *pout++ = 'E';
-          *pout++ = 'M';
-          break;
-      case LssMaxDuty:
-          *pout++ = 'M';
-          *pout++ = 'M';
-          *pout++ = 'D';
-          break;
-      case LssFilterPoleCount:
-          *pout++ = 'F';
-          *pout++ = 'P';
-          *pout++ = 'C';
-          break;
-        case LssDefault:
-          *pout++ = 'D';
-          *pout++ = 'E';
-          *pout++ = 'F';
-          *pout++ = 'A';
-          *pout++ = 'U';
-          *pout++ = 'L';
-          *pout++ = 'T';
-          break;
-        case LssConfirm:
-          *pout++ = 'C';
-          *pout++ = 'O';
-          *pout++ = 'N';
-          *pout++ = 'F';
-          *pout++ = 'I';
-          *pout++ = 'R';
-          *pout++ = 'M';
-          break;
-        default:
-          // cannot serialize, unknown command code
-          return NULL;
-      }
+  switch(id) {
+    case LssStatus: // LssQuery command
+      break;
+    case LssID:
+      *pout++ = 'I';
+      *pout++ = 'D';
+      break;
+    case LssLimp:
+      *pout++ = 'L';
+      break;
+    case LssHaltAndHold:
+      *pout++ = 'H';
+      break;
+    case LssPosition:
+      *pout++ = (units == LssPulse) ? 'P' : 'D';
+      break;
+    case LssTarget:
+      *pout++ = 'D';
+      *pout++ = 'T';
+      break;
+    case LssFirstPosition:
+      *pout++ = 'F';
+      *pout++ = (units == LssPulse) ? 'P' : 'D';
+      break;
+    case LssWheelMode:
+      *pout++ = 'W';
+      *pout++ = (units == LssRPM) ? 'R' : 'D';
+      break;
+    case LssMaxSpeed:
+      *pout++ = 'S';
+      *pout++ = (units == LssRPM) ? 'R' : 'D';
+      break;
+    case LssVoltage:
+      *pout++ = 'V';
+      break;
+    case LssCurrent:
+      *pout++ = 'C';
+      break;
+    case LssTemperature:
+      *pout++ = 'T';
+      break;
+    case LssAngularRange:
+      *pout++ = 'A';
+      *pout++ = 'R';
+      break;
+    case LssAngularStiffness:
+      *pout++ = 'A';
+      *pout++ = 'S';
+      break;
+  case LssAngularHoldingStiffness:
+      *pout++ = 'A';
+      *pout++ = 'H';
+      break;
+    case LssLEDColor:
+      *pout++ = 'L';
+      *pout++ = 'E';
+      *pout++ = 'D';
+      break;
+    case LssBaudRate:
+      *pout++ = 'B';
+      break;
+    case LssGyreDirection:
+      *pout++ = 'G';
+      break;
+    case LssOriginOffset:
+      *pout++ = 'O';
+      break;
+  case LssMotionControl:
+      *pout++ = 'E';
+      *pout++ = 'M';
+      break;
+  case LssMaxDuty:
+      *pout++ = 'M';
+      *pout++ = 'M';
+      *pout++ = 'D';
+      break;
+  case LssFilterPoleCount:
+      *pout++ = 'F';
+      *pout++ = 'P';
+      *pout++ = 'C';
+      break;
+    case LssDefault:
+      *pout++ = 'D';
+      *pout++ = 'E';
+      *pout++ = 'F';
+      *pout++ = 'A';
+      *pout++ = 'U';
+      *pout++ = 'L';
+      *pout++ = 'T';
+      break;
+    case LssConfirm:
+      *pout++ = 'C';
+      *pout++ = 'O';
+      *pout++ = 'N';
+      *pout++ = 'F';
+      *pout++ = 'I';
+      *pout++ = 'R';
+      *pout++ = 'M';
+      break;
+    default:
+      // cannot serialize, unknown command code
+      return NULL;
   }
-  
+
   *pout =0;
   return pout;
 }
@@ -294,7 +303,7 @@ char* LynxPacket::serialize(char* out) const
   }
 
   // print command code
-  out = commandCode(command, out);
+  out = command.commandCode(out);
   if(out==NULL)
     return NULL;
 
@@ -358,7 +367,7 @@ bool LynxPacket::parse(const char* pkt)
   // we parse into local variables and then set instance members
   // when we are sure we've successfully parsed.
   short _id=0;
-  LssCommands _command=LssInvalid;
+  LssCommand _command;
   bool _hasValue=false;
   int _value=0;
 #if defined(LSS_LOGGING)
@@ -374,8 +383,7 @@ bool LynxPacket::parse(const char* pkt)
       _id += (short)(*pkt++ - '0');
   }
 
-  _command = parseCommand(pkt);
-  if(_command == LssInvalid)
+  if(!_command.parse(pkt))
     goto bad_read;
 
   _value = readValue(pkt, _hasValue);

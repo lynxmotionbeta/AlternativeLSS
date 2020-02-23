@@ -1,31 +1,35 @@
 #include "lss-tests.hpp"
 
-void test_parse_command(const char* cmd, unsigned long parsed)
+void test_parse_command(const char* cmd, LssCommand parsed)
 {
-  LssCommands val = LynxPacket::parseCommand(cmd);
+  LssCommand val;
+  REQUIRE(val.parse(cmd));
   REQUIRE( *cmd == 0 /* must not have extra unparsed characters */);
-  REQUIRE(val == (LssCommands) parsed);
+  REQUIRE(val == (LssCommand)parsed);
 }
 
-void test_parse_command_extra(const char* cmd, char c, unsigned long parsed)
+void test_parse_command_extra(const char* cmd, char c, LssCommand parsed)
 {
-    LssCommands val = LynxPacket::parseCommand(cmd);
+    LssCommand val;
+    REQUIRE(val.parse(cmd));
     REQUIRE( *cmd == c /* must not have extra unparsed characters */);
-    REQUIRE(val == (LssCommands) parsed);
+    REQUIRE(val == (LssCommand) parsed);
 }
 
-void fail_parse_command(const char* cmd, unsigned long parsed)
+void fail_parse_command(const char* cmd, LssCommand parsed)
 {
-    LssCommands val = LynxPacket::parseCommand(cmd);
+    LssCommand val;
+    if(!val.parse(cmd))
+        return; // successful fail
     if(*cmd != 0)
         return;      // left over characters are a fail (success fail test)
-    REQUIRE(val != (LssCommands) parsed);
+    REQUIRE(val != parsed);
 }
 
-void test_serialize_command(const char* pkt, LssCommands cmd)
+void test_serialize_command(const char* pkt, LssCommand cmd)
 {
   char buf[128];
-  char* serialized = LynxPacket::commandCode(cmd, buf);
+  char* serialized = cmd.commandCode(buf);
   REQUIRE(NULL != serialized);
   REQUIRE(0 == strcmp(pkt, buf));
 }
@@ -74,7 +78,7 @@ TEST_PARSE_COMMAND("QDT", LssQuery|LssTarget);
 //TEST_PARSE_COMMAND("QM", LssQuery|LssModel);
 //TEST_PARSE_COMMAND("QN", LssQuery|LssSerial);
 //TEST_PARSE_COMMAND("QF", LssQuery|LssFirmware);
-TEST_PARSE_COMMAND("Q", LssQuery);
+TEST_PARSE_COMMAND("Q", LssStatus);
 TEST_PARSE_COMMAND("QV", LssQuery|LssVoltage);
 TEST_PARSE_COMMAND("QT", LssQuery|LssTemperature);
 TEST_PARSE_COMMAND("QC", LssQuery|LssCurrent);
@@ -137,7 +141,7 @@ TEST_SERIALIZE_COMMAND("QDT", LssQuery|LssTarget);
 //TEST_SERIALIZE_COMMAND("QM", LssQuery|LssModel);
 //TEST_SERIALIZE_COMMAND("QN", LssQuery|LssSerial);
 //TEST_SERIALIZE_COMMAND("QF", LssQuery|LssFirmware);
-TEST_SERIALIZE_COMMAND("Q", LssQuery);
+TEST_SERIALIZE_COMMAND("Q", LssQuery|LssStatus);
 TEST_SERIALIZE_COMMAND("QV", LssQuery|LssVoltage);
 TEST_SERIALIZE_COMMAND("QT", LssQuery|LssTemperature);
 TEST_SERIALIZE_COMMAND("QC", LssQuery|LssCurrent);

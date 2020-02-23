@@ -13,45 +13,51 @@
 #define BIT(n) (((unsigned long)1)<<n)
 #endif
 
-typedef unsigned long LssCommands;
+//typedef unsigned long LssCommands;
 typedef unsigned long LssModifiers;
 
-#define  LssInvalid          0
-#define  LssAction           BIT(1)
-#define  LssQuery            BIT(2)
-#define  LssConfig           BIT(3)
-#define  LssCommandModes     (LssAction|LssQuery|LssConfig)
+typedef enum __attribute__ ((__packed__)) {
+  LssAnyMode = 0,
+  LssAction = BIT(1),
+  LssQuery  = BIT(2),
+  LssConfig = BIT(3)
+} LssCommandMode;
 
-#define  LssDegrees          BIT(4)
-#define  LssRPM              BIT(5)
-#define  LssPulse            BIT(6)
-#define  LssUnits            (LssDegrees|LssRPM|LssPulse)
+typedef enum __attribute__ ((__packed__)) {
+  LssAnyUnit = 0,
+  LssDegrees = BIT(4),
+  LssRPM     = BIT(5),
+  LssPulse   = BIT(6)
+} LssUnits;
 
-#define  LssID               BIT(7)
-#define  LssBaudRate         BIT(8)
-#define  LssLimp             BIT(9)
-#define  LssHaltAndHold      BIT(10)
-#define  LssMove             BIT(12)
-#define  LssPosition         BIT(13)
-#define  LssTarget           BIT(14)
-#define  LssWheelMode        BIT(16)
-#define  LssMaxSpeed         BIT(17)
-#define  LssAngularRange     BIT(18)
-#define  LssAngularStiffness BIT(19)
-#define  LssAngularHoldingStiffness BIT(31)
-#define  LssOriginOffset     BIT(20)
-#define  LssGyreDirection    BIT(21)
-#define  LssLEDColor         BIT(22)
-#define  LssCurrent          BIT(23)
-#define  LssVoltage          BIT(24)
-#define  LssTemperature      BIT(25)
-#define  LssFirstPosition    BIT(26)
-#define  LssMotionControl    BIT(27)
-#define  LssFilterPoleCount  BIT(28)
-#define  LssDefault          BIT(29)
-#define  LssConfirm          BIT(30)
-#define  LssMaxDuty          BIT(32)
-#define  LssCommandSet       ((0xffffffffffff & ~(LssCommandModes|LssUnits)) | LssQuery)
+typedef enum __attribute__ ((__packed__)) {
+  LssInvalid =0,
+  LssID,
+  LssStatus,        // Simply the Q command with no sub-command id
+  LssBaudRate,
+  LssLimp,
+  LssHaltAndHold,
+  LssMove,
+  LssPosition,
+  LssTarget,
+  LssWheelMode,
+  LssMaxSpeed,
+  LssAngularRange,
+  LssAngularStiffness,
+  LssAngularHoldingStiffness,
+  LssOriginOffset,
+  LssGyreDirection,
+  LssLEDColor,
+  LssCurrent,
+  LssVoltage,
+  LssTemperature,
+  LssFirstPosition,
+  LssMotionControl,
+  LssFilterPoleCount,
+  LssDefault,
+  LssConfirm,
+  LssMaxDuty,
+} LssCommandID;
 
 // modifiers
 #define  LssModTimedMove            BIT(2)
@@ -59,29 +65,6 @@ typedef unsigned long LssModifiers;
 #define  LssModCurrentHaltAndHold   BIT(4)
 #define  LssModCurrentHaltAndLimp   BIT(5)
 #define  LssModifiersSet        (LssTimedMove|LssSpeed|LssModCurrentHaltAndHold)
-
-// commands that are part of servo configuration
-// you probably dont need these for normal control operations
-#define  LssConfigCommandSet  ( \
-       LssWheelMode \
-      |LssMaxSpeed \
-      |LssAngularRange \
-      |LssAngularStiffness \
-      |LssLEDColor \
-      |LssBaudRate \
-      |LssGyreDirection \
-      |LssOriginOffset \
-      |LssID )
-
-  // commands that support asynchronous queries
-#define  LssAsyncCommandSet  ( \
-       LssQuery \
-      |LssPosition \
-      |LssTarget \
-      |LssMaxSpeed \
-      |LssVoltage \
-      |LssCurrent \
-      |LssConfigCommandSet )
 
 
 typedef enum {
@@ -132,19 +115,102 @@ private:
     } v;
 };
 
+/*class LssCommandParser {
+public:
+    LssCommandMode mode;
+    LssUnits units;
+    LssCommand command;
+    LssModifiers modifiers;
+
+    LssCommandParser();
+
+
+    int value;
+};*/
+
+
+/* LssCommand class
+ *
+ * The new way to store an LSS command in integer form. We broke out the old bitmask to 3 fields that indicate the
+ * command mode (Query, Config or Action) and units (Degrees, RMP or Pulses) and the Command ID.
+ *
+ * This class has many operator overloads to maintain compatibility with the old bitmask mode of defining LSS commands.
+ * You can still define a command by bitmask OR'ing the Mode, Units and Command ID together.
+ *
+ */
+class LssCommand {
+public:
+    LssCommandID id;
+    LssCommandMode mode;
+    LssUnits units;
+
+    inline LssCommand(LssCommandID _id, LssCommandMode _mode, LssUnits _units)
+        : id(_id), mode(_mode), units(_units) {}
+    inline LssCommand(LssCommandID _id)
+        : LssCommand(_id, LssAnyMode, LssAnyUnit) {}
+    inline LssCommand()
+        : LssCommand(LssInvalid, LssAnyMode, LssAnyUnit) {}
+
+    inline LssCommand(const LssCommand& copy) : id(copy.id), mode(copy.mode), units(copy.units) {}
+
+    inline LssCommand& operator=(const LssCommand& _copy) = default;
+    inline LssCommand& operator=(LssCommandID _id) { id = _id; return *this; }
+    inline LssCommand& operator=(LssCommandMode _mode) { mode = _mode; return *this; }
+
+    inline LssCommand& operator|=(const LssCommand& rhs) {
+        if(rhs.id != LssInvalid) id = rhs.id;
+        if(rhs.mode != LssAnyMode) mode = rhs.mode;
+        if(rhs.units != LssAnyUnit) units = rhs.units;
+        return *this;
+    }
+
+    inline LssCommand& operator|(const LssCommandID _id) { id = _id; return *this; }
+    inline LssCommand& operator|(const LssCommandMode _mode) { mode = _mode; return *this; }
+    inline LssCommand& operator|(const LssUnits _units) { units = _units; return *this; }
+
+    inline bool operator&(const LssUnits _units) const { return units & _units; }
+    inline bool operator&(const LssCommandID _id) const { return id & _id; }
+    inline bool operator&(const LssCommandMode _mode) const { return mode & _mode; }
+
+    inline bool operator==(const LssCommand& rhs) const {
+        return (id == rhs.id) && (rhs.mode==LssAnyMode || mode==rhs.mode) && (rhs.units==LssAnyUnit || units==rhs.units);
+    }
+    inline bool operator==(LssCommandID _id) const { return id == _id; }
+    inline bool operator!=(const LssCommand& rhs) const { return !operator==(rhs); }
+
+    // Parse a command string into mode, units and command ID fields
+    bool parse(const char*& pkt);
+
+    // converts the cmd into a string command code and places the result in 'out'
+    // returns the end of the command code string within the 'out' memory, or NULL if an error
+    char* commandCode(char* out) const;
+};
+
+inline LssCommand operator|(LssCommandMode mode, LssCommandID id) {
+    return LssCommand(id, mode, LssAnyUnit);
+}
+
+inline LssCommand operator|(LssCommandID id, LssUnits units) {
+    return LssCommand(id, LssAnyMode, units);
+}
+
+/*inline LssCommand operator|(LssCommandID id, LssCommand cmd) {
+    return cmd | id;
+}
+inline LssCommand operator|(LssCommandMode mode, LssCommand cmd) {
+    return cmd | mode;
+}
+inline LssCommand operator|(LssUnits units, LssCommand cmd) {
+    return cmd | units;
+}*/
+
+
 
 class LynxPacket {
 public:
-    typedef enum {
-        Action,
-        Query,
-        Config
-    } Method;
-
-  public:
     short id;
     unsigned long long microstamp;  // timestamp in microseconds the packet was last transmitted or received
-    LssCommands command;
+    LssCommand command;
     LssModifiers modifiers;
     bool hasValue;
     int value;
@@ -153,8 +219,12 @@ public:
     int current;//, speed, timedMove;
 
     inline LynxPacket() : id(0), microstamp(0), command(LssInvalid), modifiers(0), hasValue(false), value(0) {}
-    inline LynxPacket(short _id, LssCommands _command) : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(false), value(0) {}
-    inline LynxPacket(short _id, LssCommands _command, int _value) : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(true), value(_value) {}
+
+    inline LynxPacket(short _id, LssCommand _command)
+            : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(false), value(0) {}
+    inline LynxPacket(short _id, LssCommand _command, int _value)
+            : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(true), value(_value) {}
+
 
     explicit LynxPacket(const char* pkt);
 
@@ -170,16 +240,12 @@ public:
 
     char* serialize(char* out) const;
 
-	inline bool matches(LssCommands bits) const { return (command & bits) == bits; }
-
-    static LssCommands parseCommand(const char*& pkt);
-    
-    // converts the cmd into a string command code and places the result in 'out'
-    // returns the end of the command code string within the 'out' memory, or NULL if an error
-    static char* commandCode(LssCommands cmd, char* out);
+	inline bool matches(LssCommand _command) const {
+	    return (command == _command);
+	}
 
     // converts
-    static char* modifierCode(LssModifiers mods, char* out);
+    //static char* modifierCode(LssModifiers mods, char* out);
 
 
 #if defined(HAVE_STRING)
