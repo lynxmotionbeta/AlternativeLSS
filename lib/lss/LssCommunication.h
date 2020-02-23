@@ -219,7 +219,7 @@ public:
     LssCommand command;
     LssModifiers modifiers;
     bool hasValue;
-    int value;
+    long value;
 
     // modifier values
     int current;//, speed, timedMove;
@@ -228,7 +228,7 @@ public:
 
     inline LynxPacket(short _id, LssCommand _command)
             : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(false), value(0) {}
-    inline LynxPacket(short _id, LssCommand _command, int _value)
+    inline LynxPacket(short _id, LssCommand _command, long _value)
             : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(true), value(_value) {}
 
 
@@ -237,7 +237,7 @@ public:
     bool operator==(const LynxPacket& rhs) const;
 
     inline void clear() { value = 0; hasValue=false; }
-    inline void set(int _value) { value=_value; hasValue=true; }
+    inline void set(long _value) { value=_value; hasValue=true; }
 
     inline LynxPacket& currentHaltAndHold(int _current) { modifiers |= LssModCurrentHaltAndHold; current = _current; return *this; }
     inline LynxPacket& currentHaltAndLimp(int _current) { modifiers |= LssModCurrentHaltAndLimp; current = _current; return *this; }

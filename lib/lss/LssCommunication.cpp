@@ -327,8 +327,9 @@ char* LynxPacket::serialize(char* out) const
 
   // use platform to convert value
   if(hasValue) {
-    // if(NULL == itoa(value, out, 10)
-    if (snprintf(out, 8, "%d", value) == -1)
+    // todo: (consolidate) should we use ltoa or snprintf?
+      // if(NULL == ltoa(value, out, 10)
+    if (snprintf(out, 8, "%ld", value) == -1)
       return NULL;
     while(*out) out++;  // skip to end
   } else
@@ -387,7 +388,7 @@ bool LynxPacket::parse(const char* pkt)
   short _id=0;
   LssCommand _command;
   bool _hasValue=false;
-  int _value=0;
+  long _value=0;
 #if defined(LSS_LOGGING)
   const char* begin = pkt;
 #endif
