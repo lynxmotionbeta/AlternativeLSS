@@ -13,7 +13,8 @@
 #define BIT(n) (((unsigned long)1)<<n)
 #endif
 
-//typedef unsigned long LssCommands;
+#define LssBroadcastAddress   (254)
+
 typedef unsigned long LssModifiers;
 
 typedef enum __attribute__ ((__packed__)) {
@@ -57,6 +58,11 @@ typedef enum __attribute__ ((__packed__)) {
   LssDefault,
   LssConfirm,
   LssMaxDuty,
+
+  // todo: implement new commands from master
+  LssAnalog,
+  LssReset,
+  LssModel
 } LssCommandID;
 
 // modifiers
@@ -240,9 +246,17 @@ public:
 
     char* serialize(char* out) const;
 
-	inline bool matches(LssCommand _command) const {
-	    return (command == _command);
-	}
+	inline bool matches(LssCommand _command) const { return (command == _command); }
+
+    inline bool between(long min, long max) const { return hasValue && value >= min && value <= max; }
+
+    inline bool broadcast() const { return id == 254; }
+
+    // true if command is a query command
+    inline bool query() const { return (command & LssQuery) >0; }
+
+    // true if command requests value be written to flash (Config prefix)
+    inline bool flash() const { return (command & LssConfig) >0; }
 
     // converts
     //static char* modifierCode(LssModifiers mods, char* out);
