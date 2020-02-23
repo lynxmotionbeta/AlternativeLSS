@@ -200,7 +200,11 @@ inline LssCommand operator|(LssCommandID id, LssUnits units) {
     return LssCommand(id, LssAnyMode, units);
 }
 
-/*inline LssCommand operator|(LssCommandID id, LssCommand cmd) {
+inline LssCommand operator|(LssCommandID id, LssCommandMode mode) {
+    return LssCommand(id, mode, LssAnyUnit);
+}
+
+inline LssCommand operator|(LssCommandID id, LssCommand cmd) {
     return cmd | id;
 }
 inline LssCommand operator|(LssCommandMode mode, LssCommand cmd) {
@@ -208,7 +212,7 @@ inline LssCommand operator|(LssCommandMode mode, LssCommand cmd) {
 }
 inline LssCommand operator|(LssUnits units, LssCommand cmd) {
     return cmd | units;
-}*/
+}
 
 
 

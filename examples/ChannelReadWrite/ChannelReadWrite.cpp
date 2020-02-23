@@ -43,9 +43,9 @@ int main() {
     while(millis() < _quitting_time) {
 
         channel.send({
-            LynxPacket(servos[2], LssPosition|LssQuery|LssDegrees),
-            LynxPacket(servos[1], LssPosition|LssQuery|LssDegrees),
-            LynxPacket(servos[0], LssPosition|LssQuery|LssDegrees)
+            LynxPacket(servos[2], LssQuery|LssPosition|LssDegrees),
+            LynxPacket(servos[1], LssQuery|LssPosition|LssDegrees),
+            LynxPacket(servos[0], LssQuery|LssPosition|LssDegrees)
         })
             .then( [&success,&avgtime](const LssTransaction& tx) {
                 auto packets = tx.packets();
