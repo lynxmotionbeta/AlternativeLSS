@@ -1,7 +1,7 @@
 
 #include "LssCommunication.h"
 
-#define ACCEPT(cmdid)  { operator|=(cmdid); return cmdid != LssInvalid; }
+#define ACCEPT(cmdid)  { operator|=(cmdid); return (cmdid) != LssInvalid; }
 #define SWITCH(cmdid)  if(*pkt==0 || !isalpha(*pkt)) ACCEPT(cmdid) else switch (*pkt++)
 
 
