@@ -48,7 +48,7 @@ actions:
       case 'A': SWITCH(LssInvalid) {
       case 'U': SWITCH(LssInvalid) {
       case 'L': SWITCH(LssInvalid) {
-      case 'T': SWITCH(LssDefault) {
+      case 'T': ACCEPT(LssDefault) {
       }}}}}}
     }
     case 'A': SWITCH(LssInvalid) {
@@ -76,7 +76,15 @@ actions:
     case 'S': SWITCH(LssInvalid) {
       case 'D': ACCEPT(LssMaxSpeed|LssDegrees);
       case 'R': ACCEPT(LssMaxSpeed|LssRPM);
-    }      
+    }
+    case 'R': SWITCH(LssInvalid) {
+      case 'S': ACCEPT(LssReset);
+      case 'E': SWITCH(LssInvalid) {
+      case 'S': SWITCH(LssInvalid) {
+      case 'E': SWITCH(LssInvalid) {
+      case 'T': ACCEPT(LssReset) {
+      }}}}
+    }
   }
   return false;
   
@@ -84,10 +92,13 @@ queries:
   mode = LssQuery;
   SWITCH(LssStatus) {
     case 'O': ACCEPT(LssOriginOffset);
-    case 'A': SWITCH(LssInvalid) {
+    case 'A': SWITCH(LssAnalog) {
       case 'R': ACCEPT(LssAngularRange);
       case 'S': ACCEPT(LssAngularStiffness);
       case 'H': ACCEPT(LssAngularHoldingStiffness);
+    }
+    case 'M': SWITCH(LssInvalid) {
+      case 'S': ACCEPT(LssModel);
     }
     case 'P': ACCEPT(LssPosition|LssPulse);
     case 'D': SWITCH(LssPosition|LssDegrees) {
@@ -127,7 +138,7 @@ config:
       case 'F': SWITCH(LssInvalid) {
       case 'I': SWITCH(LssInvalid) {
       case 'R': SWITCH(LssInvalid) {
-      case 'M': SWITCH(LssConfirm) {
+      case 'M': ACCEPT(LssConfirm) {
       }}}}}
     }
     case 'A': SWITCH(LssInvalid) {
@@ -249,6 +260,10 @@ char* LssCommand::commandCode(char* out) const
       *pout++ = 'P';
       *pout++ = 'C';
       break;
+  case LssModel:
+      *pout++ = 'M';
+      *pout++ = 'S';
+      break;
     case LssDefault:
       *pout++ = 'D';
       *pout++ = 'E';
@@ -257,6 +272,9 @@ char* LssCommand::commandCode(char* out) const
       *pout++ = 'U';
       *pout++ = 'L';
       *pout++ = 'T';
+      break;
+  case LssAnalog:
+      *pout++ = 'A';
       break;
     case LssConfirm:
       *pout++ = 'C';
