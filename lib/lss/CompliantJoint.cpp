@@ -101,7 +101,7 @@ void CompliantJoint::update(unsigned long tsnow)
                     dx, old_currentBias, pos_polarity ? '+' : neg_polarity ? '-' : '*', gravityBias, currentBias,
                     current.current().value(), currentBias, currentLimit, (double)unbiasedCurrent*100/currentLimit
             );
-#else
+#elif 0
         if(name == "J14*" || name == "J13")
             printf("%s  p:%d dx:%d mA:%d | bias: [%c] B%d G%d | lim: L%d+G%d=>%d duty:%d %s\n",
                    name.c_str(),
