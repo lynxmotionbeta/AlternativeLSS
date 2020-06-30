@@ -77,6 +77,7 @@ public:
     bool expired(unsigned long long tsnow=0) const;
 
     inline const std::vector<LynxPacket>& packets() const { return _packets; }
+    inline std::vector<LynxPacket>& packets() { return _packets; }
 
     const LynxPacket next();
     void dispatch(const LynxPacket& p);
