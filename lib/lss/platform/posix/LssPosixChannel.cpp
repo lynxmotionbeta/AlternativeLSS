@@ -18,7 +18,6 @@
 #include <poll.h>
 #include <asm/ioctls.h>
 
-#define BAUDRATE B230400
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 
 
@@ -183,7 +182,8 @@ reopen:
     res = ioctl(fd, TIOCSSERIAL, &serial);
 
     tcgetattr(fd,&oldtio); /* save current port settings */
-    newtio.c_cflag = BAUDRATE | CS8 | CLOCAL | CREAD; // | CRTSCTS
+    newtio.c_cflag &= ~CBAUD; // no common baud rate
+    newtio.c_cflag = CBAUDEX | CS8 | CLOCAL | CREAD; // | CRTSCTS  // use extended baud rates
     newtio.c_cflag &= ~(PARENB | PARODD); // No parity
     newtio.c_cflag &= ~CRTSCTS; // No hardware handshake
     newtio.c_cflag &= ~CSTOPB; // 1 stopbit
@@ -195,6 +195,10 @@ reopen:
     newtio.c_oflag = 0;
     newtio.c_lflag = 0;
     newtio.c_lflag &= ~(ICANON|ECHO); /* Clear ICANON and ECHO. */
+
+    // good discussion on setting extended baudrates at:
+    // https://stackoverflow.com/questions/12646324/how-can-i-set-a-custom-baud-rate-on-linux
+    cfsetspeed(&newtio, baudrate);  // select baudrate
 
     newtio.c_cc[VMIN]=1;
     newtio.c_cc[VTIME]=0;
