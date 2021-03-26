@@ -175,7 +175,7 @@ void LssTransaction::dispatch(const LynxPacket& p)
         expireAt = now + expireInterval;
 
         if(ttfr ==0)
-            ttfr = now;
+            ttfr = now - txt;
 
         // advance over any non-query packets
         while(_rx!=_packets.end() && (_rx->command & LssQuery)==0)
