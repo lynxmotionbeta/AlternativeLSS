@@ -77,6 +77,23 @@ LssChannel::Promise LssChannel::send(std::shared_ptr<LssTransaction> tx)
     return promise;
 }
 
+LssChannel::QueuedTransaction LssChannel::prepare(std::shared_ptr<LssTransaction> tx)
+{
+    tx->reset();
+    return LssChannel::QueuedTransaction(tx);
+}
+
+void LssChannel::send(QueuedTransaction qtx)
+{
+    pthread_mutex_lock(&txlock);
+    qtx.tx->txn = txn_next++;
+    transactions.emplace_back(qtx);
+    bool sendSignal = transactions.size() ==1;
+    pthread_mutex_unlock(&txlock);
+    if(_driver && sendSignal)
+        _driver->signal(TransactionSignal, 0, nullptr);
+}
+
 void LssChannel::completeTransaction()
 {
     auto &current = transactions.front();

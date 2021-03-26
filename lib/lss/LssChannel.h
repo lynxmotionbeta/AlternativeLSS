@@ -85,7 +85,11 @@ public:
 
     short scan(short beginId, short endId);
 
+    QueuedTransaction prepare(std::shared_ptr<LssTransaction> tx);
+
     Promise send(std::shared_ptr<LssTransaction> tx);
+
+    void send(QueuedTransaction qtx);
 
     inline Promise send(std::initializer_list<LynxPacket> packets)
     {
