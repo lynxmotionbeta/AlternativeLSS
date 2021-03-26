@@ -79,7 +79,6 @@ unsigned long LssTransaction::Qwait = 1800;
 const LynxPacket LssTransaction::next()
 {
     unsigned long long now = micros();
-    LynxPacket p;
 
     if(state < Completed) {
         if (txt == 0) {
@@ -90,15 +89,19 @@ const LynxPacket LssTransaction::next()
 
 #if 1
         // we can transmit a packet as long as any packet we are waiting to receive has the same bus ID
+
         while (_tx != _packets.end() && _tx->id == _rx->id) {
             LynxPacket p = *_tx++;
 
-            if(!p.isEnabled())
-                continue;
-
             // advance over any non-query packets since we wont receive anything back from them
+            // warning: if this doesnt run on each tx package then rx may not sync and keep up with tx
+            //          and packets in the transaction will be skipped.
             while (_rx != _packets.end() && _rx < _tx && (_rx->command & LssQuery) == 0)
                 _rx++;
+
+            if(!p.isEnabled()) {
+                continue;
+            }
 
             checkCompleteStatus();
 
@@ -161,7 +164,7 @@ const LynxPacket LssTransaction::next()
         checkCompleteStatus();
 #endif
     }
-    return p;
+    return LynxPacket();
 }
 
 void LssTransaction::dispatch(const LynxPacket& p)

@@ -52,7 +52,7 @@ typedef unsigned long LssModifiers;
 #define  LssDefault          BIT(29)
 #define  LssConfirm          BIT(30)
 #define  LssMaxDuty          BIT(32)
-#define  LssCommandSet       ((0xffffffffffff & ~(LssCommandModes|LssUnits)) | LssQuery)
+#define  LssCommandSet       (LssCommands)((0xffffffffffffULL & ~(LssCommandModes|LssUnits)) | LssQuery)
 
 // modifiers
 #define  LssModTimedMove            BIT(2)
