@@ -1,31 +1,51 @@
 
-set(SOURCE_FILES
+set(ANALYTICS_INCLUDE_FILES
+        analytics/aggregate.h
+	analytics/MovingAverage.h
+	analytics/numerics.h
+	analytics/range.h
+)
+
+set(INCLUDE_FILES
         LynxmotionLSS-Config.h
         MaskSet.h
         AsyncToken.h
         LssPromise.h
-        LssCommon.h LssCommon.cpp
-        LssTransaction.h LssTransaction.cpp
-        LssCommunication.h LssCommunication.cpp
-        LssChannel.h LssChannel.cpp
+	LssCommon.h
+        LssTransaction.h
+        LssCommunication.h
+        LssChannel.h
         LssChannelDriver.h
-        platform/posix/LssPosixChannel.h platform/posix/LssPosixChannel.cpp
-        analytics/aggregate.h analytics/MovingAverage.h analytics/numerics.h analytics/range.h
+        platform/posix/LssPosixChannel.h
+)
+set(SOURCE_FILES
+        LssCommon.cpp
+	LssTransaction.cpp
+        LssCommunication.cpp
+        LssChannel.cpp
+        platform/posix/LssPosixChannel.cpp
 )
 
+
 if(HAS_LIBFTDI)
-    set(SOURCE_FILES ${SOURCE_FILES} platform/libftdi/LssFtdiChannel.h platform/libftdi/LssFtdiChannel.cpp)
+	set(INCLUDE_FILES ${INCLUDE_FILES} platform/libftdi/LssFtdiChannel.h)
+    set(SOURCE_FILES ${SOURCE_FILES} platform/libftdi/LssFtdiChannel.cpp)
 endif()
 
 if(WITH_COMPLIANCE)
-    set(SOURCE_FILES ${SOURCE_FILES} parameter.h CompliantJoint.h CompliantJoint.cpp)
+	set(INCLUDE_FILES ${INCLUDE_FILES} parameter.h CompliantJoint.h)
+    set(SOURCE_FILES ${SOURCE_FILES} CompliantJoint.cpp)
 endif()
 
+set(ALL_INCLUDE_FILES
+	${INCLUDE_FILES}
+	${ANALYTICS_INCLUDE_FILES}
+)
 
 # we first add our intermediate object library
 # which will them be linked into an archive and a shared library
 #add_library(sigint-objlib OBJECT ${SOURCE_FILES} $<TARGET_OBJECTS:sigint-matrix> $<TARGET_OBJECTS:sigint-streams> $<TARGET_OBJECTS:sigint-numerical>)
-add_library(lss-objlib OBJECT ${SOURCE_FILES})
+add_library(lss-objlib OBJECT ${ALL_INCLUDE_FILES} ${SOURCE_FILES})
 
 # currently no dependencies
 #add_dependencies(sigint-objlib rxcpp)
@@ -55,7 +75,20 @@ set(LSS_LIBRARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "path to sigint lib
 #        VERSION ${sigintSDK_VERSION_STRING}
 #        SOVERSION ${sigintSDK_VERSION_MAJOR})
 
+## Install headers
+install(FILES ${INCLUDE_FILES}
+	DESTINATION include/${PROJECT_NAME}
+)
+install(FILES ${ANALYTICS_INCLUDE_FILES}
+	DESTINATION include/${PROJECT_NAME}/analytics
+)
+install(DIRECTORY platform
+	DESTINATION include/${PROJECT_NAME}
+)
+
 install(TARGETS lss-static lss-shared
+        EXPORT export_${PROJECT_NAME}
         RUNTIME DESTINATION "bin"
         LIBRARY DESTINATION "lib"
         ARCHIVE DESTINATION "lib")
+

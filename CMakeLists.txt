@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(LynxmotionLSS)
+project(lynxmotion-lss)
 
 option(WITH_SHARED "enable building of the shared library" ON)
 option(WITH_STATIC "enable building of the static library" ON)
