@@ -90,9 +90,11 @@ const LynxPacket LssTransaction::next()
 
 #if 1
         // we can transmit a packet as long as any packet we are waiting to receive has the same bus ID
-        if (_tx != _packets.end() && _tx->id == _rx->id) {
-            LynxPacket p = *_tx;
-            _tx++;
+        while (_tx != _packets.end() && _tx->id == _rx->id) {
+            LynxPacket p = *_tx++;
+
+            if(!p.isEnabled())
+                continue;
 
             // advance over any non-query packets since we wont receive anything back from them
             while (_rx != _packets.end() && _rx < _tx && (_rx->command & LssQuery) == 0)

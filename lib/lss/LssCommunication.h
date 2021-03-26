@@ -148,21 +148,25 @@ public:
     LssCommands command;
     LssModifiers modifiers;
     bool hasValue;
+	bool enable_;
     int value;
 
     // modifier values
     int current;//, speed, timedMove;
 
-    inline LynxPacket() : id(0), microstamp(0), command(LssInvalid), modifiers(0), hasValue(false), value(0) {}
-    inline LynxPacket(short _id, LssCommands _command) : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(false), value(0) {}
-    inline LynxPacket(short _id, LssCommands _command, int _value) : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(true), value(_value) {}
+    inline LynxPacket() : id(0), microstamp(0), command(LssInvalid), modifiers(0), hasValue(false), enable_(true), value(0) {}
+    inline LynxPacket(short _id, LssCommands _command) : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(false), enable_(true), value(0) {}
+    inline LynxPacket(short _id, LssCommands _command, int _value) : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(true), enable_(true), value(_value) {}
 
     explicit LynxPacket(const char* pkt);
 
     bool operator==(const LynxPacket& rhs) const;
 
-    inline void clear() { value = 0; hasValue=false; }
-    inline void set(int _value) { value=_value; hasValue=true; }
+    inline void clear() { value = 0; hasValue=false;  }
+    inline void set(int _value) { value=_value; hasValue=true; enable_ = true; }
+
+    inline bool isEnabled() const { return command!=0 && enable_; }
+	inline void enable(bool e = true) { enable_ = e; }
 
     inline LynxPacket& currentHaltAndHold(int _current) { modifiers |= LssModCurrentHaltAndHold; current = _current; return *this; }
     inline LynxPacket& currentHaltAndLimp(int _current) { modifiers |= LssModCurrentHaltAndLimp; current = _current; return *this; }
