@@ -56,7 +56,7 @@ void LssChannel::clear() {
     pthread_mutex_lock(&txlock);
     if(!transactions.empty()) {
         auto &current = transactions.front();
-        current.promise.reject(current.tx);   // will call promises
+        current.reject(current.tx);   // will call promises
     }
     transactions.clear();
     pthread_mutex_unlock(&txlock);
@@ -69,7 +69,7 @@ LssChannel::Promise LssChannel::send(std::shared_ptr<LssTransaction> tx)
     tx->reset();
     tx->txn = txn_next++;
     transactions.emplace_back(tx);
-    auto& promise = transactions.back().promise;
+    auto& promise = transactions.back();
     bool sendSignal = transactions.size() ==1;
     pthread_mutex_unlock(&txlock);
     if(_driver && sendSignal)
@@ -81,9 +81,9 @@ void LssChannel::completeTransaction()
 {
     auto &current = transactions.front();
     if(current.tx->state == LssTransaction::Completed)
-        current.promise.resolve(current.tx);   // will call promises
+        current.resolve(current.tx);   // will call promises
     else
-        current.promise.reject(current.tx);   // will call promises
+        current.reject(current.tx);   // will call promises
 
     pthread_mutex_lock(&txlock);
     transactions.pop_front();

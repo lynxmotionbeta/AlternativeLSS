@@ -157,7 +157,6 @@ const LynxPacket LssTransaction::next()
             _rx++;
 
         checkCompleteStatus();
-
 #endif
     }
     return p;

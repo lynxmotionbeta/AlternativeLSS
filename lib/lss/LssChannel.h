@@ -38,10 +38,10 @@ public: // todo: should be private
 
     using Promise = LssPromise< LssTransaction >;
 
-    class QueuedTransaction {
+    class QueuedTransaction : public Promise {
     public:
         std::shared_ptr<LssTransaction> tx;
-        Promise promise;
+        //Promise promise;
 
         inline QueuedTransaction() {}
         inline QueuedTransaction(std::shared_ptr<LssTransaction> _tx) : tx(std::move(_tx)) {}

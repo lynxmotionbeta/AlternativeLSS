@@ -114,7 +114,6 @@ void CompliantJoint::update(unsigned long tsnow)
         unsigned long stateTime = millis() - stateChanged;
         bool idle = position.current().velocity()==0 && !limit_exceeded;
 
-
         switch(state) {
             case Holding:
                 // check if we are over current limit
