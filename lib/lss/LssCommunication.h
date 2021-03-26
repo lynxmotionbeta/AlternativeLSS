@@ -10,10 +10,10 @@
 
 #ifndef BIT
 // hopefully if this is already defined it performs the same function
-#define BIT(n) (((unsigned long)1)<<n)
+#define BIT(n) (((uint64_t)1)<<n)
 #endif
 
-typedef unsigned long LssCommands;
+typedef uint64_t LssCommands;
 typedef unsigned long LssModifiers;
 
 #define  LssInvalid          0
@@ -36,6 +36,7 @@ typedef unsigned long LssModifiers;
 #define  LssTarget           BIT(14)
 #define  LssWheelMode        BIT(16)
 #define  LssMaxSpeed         BIT(17)
+#define  LssSpeed            BIT(33)
 #define  LssAngularRange     BIT(18)
 #define  LssAngularStiffness BIT(19)
 #define  LssAngularHoldingStiffness BIT(31)
