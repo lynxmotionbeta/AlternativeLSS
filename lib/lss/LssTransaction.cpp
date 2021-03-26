@@ -8,7 +8,7 @@
 
 LssTransaction::LssTransaction(unsigned long _txn, std::initializer_list<LynxPacket> packets, unsigned long _expire_uSec)
     : txn(_txn), timestamp(micros()), expireAt(0), nextQ(0), state(Pending), 
-      txt(0), ttfr(0), ttc(0), tt_tx_c(0), expireInterval(_expire_uSec), 
+      txt(0), ttfr(0), ttc(0), expireInterval(_expire_uSec),
       _packets(packets)
 {
     // std::sort(_packets.begin(), _packets.end(), _packet_order_by_busid::sorter);
@@ -46,7 +46,7 @@ void LssTransaction::reset() {
     txn = 0;
     timestamp = expireAt = 0;
     state = Pending;
-    txt = ttfr = ttc = tt_tx_c = 0;
+    txt = ttfr = ttc = 0;
     _tx = _rx = _packets.begin();
     for(auto& p: _packets) {
         if(p.command & LssQuery)
