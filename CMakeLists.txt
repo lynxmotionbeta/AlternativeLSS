@@ -112,6 +112,9 @@ add_subdirectory(examples)
 include_directories(lynxmotion-lss/analytics)
 
 if(WITH_ROS)
+
     ament_export_include_directories(include)
+    ament_export_libraries(lss-static lss-shared)
+    ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
     ament_package()
 endif()

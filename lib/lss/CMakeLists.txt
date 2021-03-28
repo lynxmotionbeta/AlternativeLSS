@@ -90,5 +90,7 @@ install(TARGETS lss-static lss-shared
         EXPORT export_${PROJECT_NAME}
         RUNTIME DESTINATION "bin"
         LIBRARY DESTINATION "lib"
-        ARCHIVE DESTINATION "lib")
+        ARCHIVE DESTINATION "lib"
+        INCLUDES DESTINATION "include"
+        )
 
