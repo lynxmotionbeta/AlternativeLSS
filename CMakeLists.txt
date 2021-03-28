@@ -10,7 +10,13 @@ option(SANITIZE "enable sanitize flags if available providing memory leak and ot
 option(EFENCE "enable Electric Fence debugging by linking to lfence library" OFF)
 option(WITH_LIBFTDI "enable building of the libftdi user-space serial driver for LssChannel" OFF)
 option(WITH_COMPLIANCE "include Compliant Joint functionality" ON)
+option(WITH_ROS "compile as a ROS colcon package" OFF)
 
+# check if we are running as a ROS colcon package
+if(DEFINED ENV{COLCON_PREFIX_PATH})
+	set(WITH_ROS ON)
+	message(STATUS "compiling lynxmotion-lss as a ROS package")
+endif()
 
 include(CMakeChecks.txt)
 
@@ -90,9 +96,22 @@ if(SANITIZE)
     message(STATUS "warning: enabling sanitize testing, remember to disable for deployment")
 endif()
 
+
+if(WITH_ROS)
+    find_package(ament_cmake REQUIRED)
+endif()
+
 set(LYNXMOTIONLSS_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "Location of LynxmotionLSS source")
 set(LYNXMOTIONLSS_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "Location of LynxmotionLSS binaries")
 
 add_subdirectory(lib)
 add_subdirectory(examples)
 #add_subdirectory(tests)
+
+
+include_directories(lynxmotion-lss/analytics)
+
+if(WITH_ROS)
+    ament_export_include_directories(include)
+    ament_package()
+endif()
