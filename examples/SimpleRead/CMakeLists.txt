@@ -11,7 +11,7 @@ link_directories(${LSS_LIBRARY_DIR})
 target_link_libraries(lss-simpleread lss-static pthread)
 
 # set compilation properties on the object library
-set_property(TARGET lss-objlib PROPERTY POSITION_INDEPENDENT_CODE 1)
+set_property(TARGET lss-simplread PROPERTY POSITION_INDEPENDENT_CODE 1)
 #set_property(TARGET lss-objlib PROPERTY C_STANDARD 99)
 #target_include_directories(lss-objlib )
 

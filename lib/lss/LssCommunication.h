@@ -16,6 +16,12 @@
 typedef uint64_t LssCommands;
 typedef unsigned long LssModifiers;
 
+// todo: These bitmask defines were updated in a consolidated branch
+//       to use enums.
+//       https://github.com/lynxmotionbeta/AlternativeLSS/commit/53bdc709f43f7d223e82563645f3d5f4603411a9
+//          consolidate branch:
+//       https://github.com/lynxmotionbeta/AlternativeLSS/compare/feature/consolidate?expand=1
+//
 #define  LssInvalid          0
 #define  LssAction           BIT(1)
 #define  LssQuery            BIT(2)
