@@ -52,6 +52,10 @@ typedef unsigned long LssModifiers;
 #define  LssDefault          BIT(29)
 #define  LssConfirm          BIT(30)
 #define  LssMaxDuty          BIT(32)
+#define  LssAnalog           BIT(34)
+#define  LssReset            BIT(35)
+#define  LssModel            BIT(36)
+
 #define  LssCommandSet       (LssCommands)((0xffffffffffffULL & ~(LssCommandModes|LssUnits)) | LssQuery)
 
 // modifiers
@@ -149,21 +153,23 @@ public:
     LssModifiers modifiers;
     bool hasValue;
 	bool enable_;
-    int value;
+    long value;
 
     // modifier values
     int current;//, speed, timedMove;
 
     inline LynxPacket() : id(0), microstamp(0), command(LssInvalid), modifiers(0), hasValue(false), enable_(true), value(0) {}
     inline LynxPacket(short _id, LssCommands _command) : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(false), enable_(true), value(0) {}
-    inline LynxPacket(short _id, LssCommands _command, int _value) : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(true), enable_(true), value(_value) {}
+    inline LynxPacket(short _id, LssCommands _command, long _value) : id(_id),
+                                                                   microstamp(0), command(_command), modifiers(0), hasValue(true), enable_(true), value(_value) {}
 
     explicit LynxPacket(const char* pkt);
 
     bool operator==(const LynxPacket& rhs) const;
 
     inline void clear() { value = 0; hasValue=false;  }
-    inline void set(int _value) { value=_value; hasValue=true; enable_ = true; }
+    inline void set(long _value) { value=_value; hasValue=true; enable_ =
+          true; }
 
     inline bool isEnabled() const { return command!=0 && enable_; }
 	inline void enable(bool e = true) { enable_ = e; }
@@ -175,7 +181,17 @@ public:
 
     char* serialize(char* out) const;
 
-	inline bool matches(LssCommands bits) const { return (command & bits) == bits; }
+    inline bool matches(LssCommands bits) const { return (command & bits) == bits; }
+
+    inline bool between(long min, long max) const { return hasValue && value >= min && value <= max; }
+
+    inline bool broadcast() const { return id == 254; }
+
+    // true if command is a query command
+    inline bool query() const { return (command & LssQuery) >0; }
+
+    // true if command requests value be written to flash (Config prefix)
+    inline bool flash() const { return (command & LssConfig) >0; }
 
     static LssCommands parseCommand(const char*& pkt);
     

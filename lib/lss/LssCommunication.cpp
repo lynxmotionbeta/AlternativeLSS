@@ -2,7 +2,7 @@
 #include "LssCommunication.h"
 
 #define ACCEPT(cmdid) return (LssCommands)(cmdid);
-#define SWITCH(cmdid)  if(*pkt==0 || !isalpha(*pkt)) ACCEPT(cmdid) else switch (*pkt++)
+#define SWITCH(cmdid)  if(*pkt==0 || !isalpha(*pkt)) ACCEPT(cmdid) else switch (toupper(*pkt++))
 
 LssCommands LynxPacket::parseCommand(const char*& pkt) 
 {
@@ -37,10 +37,10 @@ LssCommands LynxPacket::parseCommand(const char*& pkt)
       case 'A': SWITCH(LssInvalid) {
       case 'U': SWITCH(LssInvalid) {
       case 'L': SWITCH(LssInvalid) {
-      case 'T': SWITCH(LssDefault) {
-      }}}}}}
+      case 'T': ACCEPT(LssDefault);
+      }}}}}
     }
-    case 'A': SWITCH(LssInvalid) {
+    case 'A': SWITCH(LssAnalog) {
       case 'R': ACCEPT(LssAngularRange);
       case 'S': ACCEPT(LssAngularStiffness);
       case 'H': ACCEPT(LssAngularHoldingStiffness);
@@ -69,11 +69,14 @@ LssCommands LynxPacket::parseCommand(const char*& pkt)
     
     case 'Q': SWITCH(LssQuery) {
       case 'O': ACCEPT(LssQuery|LssOriginOffset);
-      case 'A': SWITCH(LssInvalid) {
+      case 'A': SWITCH(LssQuery|LssAnalog) {
         case 'R': ACCEPT(LssQuery|LssAngularRange);
         case 'S': ACCEPT(LssQuery|LssAngularStiffness);
         case 'H': ACCEPT(LssQuery|LssAngularHoldingStiffness);
       }
+      case 'M': SWITCH(LssInvalid) {
+        case 'S': ACCEPT(LssQuery|LssModel);
+	  }
       case 'P': ACCEPT(LssQuery|LssPosition|LssPulse);
       case 'D': SWITCH(LssQuery|LssPosition|LssDegrees) {
         case 'T': ACCEPT(LssQuery|LssTarget);
@@ -103,14 +106,23 @@ LssCommands LynxPacket::parseCommand(const char*& pkt)
       case 'C': ACCEPT(LssQuery|LssCurrent);
     }
 
+    case 'R': SWITCH(LssInvalid) {
+      case 'S': ACCEPT(LssReset);
+      case 'E': SWITCH(LssInvalid) {
+      case 'S': SWITCH(LssInvalid) {
+      case 'E': SWITCH(LssInvalid) {
+      case 'T': ACCEPT(LssReset) {
+      }}}}
+    }
+
     case 'C': SWITCH(LssInvalid) {
       case 'O': SWITCH(LssConfig|LssOriginOffset) {
         case 'N': SWITCH(LssInvalid) {
         case 'F': SWITCH(LssInvalid) {
         case 'I': SWITCH(LssInvalid) {
         case 'R': SWITCH(LssInvalid) {
-        case 'M': SWITCH(LssConfirm) {
-        }}}}}
+        case 'M': ACCEPT(LssConfirm);
+        }}}}
       }
       case 'A': SWITCH(LssInvalid) {
         case 'R': ACCEPT(LssConfig|LssAngularRange);
@@ -202,6 +214,9 @@ char* LynxPacket::commandCode(LssCommands cmd, char* out)
         case LssTemperature:
           *pout++ = 'T';
           break;
+        case LssAnalog:
+          *pout++ = 'A';
+          break;
         case LssAngularRange:
           *pout++ = 'A';
           *pout++ = 'R';
@@ -260,6 +275,10 @@ char* LynxPacket::commandCode(LssCommands cmd, char* out)
           *pout++ = 'R';
           *pout++ = 'M';
           break;
+        case LssModel:
+          *pout++ = 'M';
+          *pout++ = 'S';
+          break;
         default:
           // cannot serialize, unknown command code
           return NULL;
@@ -303,8 +322,11 @@ char* LynxPacket::serialize(char* out) const
 
   // use platform to convert value
   if(hasValue) {
-    // if(NULL == itoa(value, out, 10)
-    if (snprintf(out, 8, "%d", value) == -1)
+#if defined(ARDUINO)
+    if (NULL == ltoa(value, out, 10))
+#else
+    if (snprintf(out, 8, "%ld", value) == -1)
+#endif
       return NULL;
     while(*out) out++;  // skip to end
   } else
@@ -363,7 +385,7 @@ bool LynxPacket::parse(const char* pkt)
   short _id=0;
   LssCommands _command=LssInvalid;
   bool _hasValue=false;
-  int _value=0;
+  long _value=0;
 #if defined(LSS_LOGGING)
   const char* begin = pkt;
 #endif
