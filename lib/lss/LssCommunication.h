@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "LynxmotionLSS-Config.h"
 #include "LssCommon.h"
 
@@ -152,6 +154,8 @@ public:
         Config
     } Method;
 
+  typedef uint32_t value_type;
+
   public:
     short id;
     unsigned long long microstamp;  // timestamp in microseconds the packet was last transmitted or received
@@ -159,14 +163,14 @@ public:
     LssModifiers modifiers;
     bool hasValue;
 	bool enable_;
-    long value;
+	value_type value;
 
     // modifier values
     int current;//, speed, timedMove;
 
     inline LynxPacket() : id(0), microstamp(0), command(LssInvalid), modifiers(0), hasValue(false), enable_(true), value(0) {}
     inline LynxPacket(short _id, LssCommands _command) : id(_id), microstamp(0), command(_command), modifiers(0), hasValue(false), enable_(true), value(0) {}
-    inline LynxPacket(short _id, LssCommands _command, long _value) : id(_id),
+    inline LynxPacket(short _id, LssCommands _command, value_type _value) : id(_id),
                                                                    microstamp(0), command(_command), modifiers(0), hasValue(true), enable_(true), value(_value) {}
 
     explicit LynxPacket(const char* pkt);
@@ -174,7 +178,7 @@ public:
     bool operator==(const LynxPacket& rhs) const;
 
     inline void clear() { value = 0; hasValue=false;  }
-    inline void set(long _value) { value=_value; hasValue=true; enable_ =
+    inline void set(value_type _value) { value=_value; hasValue=true; enable_ =
           true; }
 
     inline bool isEnabled() const { return command!=0 && enable_; }
@@ -189,7 +193,7 @@ public:
 
     inline bool matches(LssCommands bits) const { return (command & bits) == bits; }
 
-    inline bool between(long min, long max) const { return hasValue && value >= min && value <= max; }
+    inline bool between(value_type min, value_type max) const { return hasValue && value >= min && value <= max; }
 
     inline bool broadcast() const { return id == 254; }
 

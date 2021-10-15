@@ -325,7 +325,7 @@ char* LynxPacket::serialize(char* out) const
 #if defined(ARDUINO)
     if (NULL == ltoa(value, out, 10))
 #else
-    if (snprintf(out, 8, "%ld", value) == -1)
+    if (snprintf(out, 8, "%d", value) == -1)
 #endif
       return NULL;
     while(*out) out++;  // skip to end
