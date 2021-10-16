@@ -104,8 +104,10 @@ endif()
 set(LYNXMOTIONLSS_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "Location of LynxmotionLSS source")
 set(LYNXMOTIONLSS_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "Location of LynxmotionLSS binaries")
 
-add_subdirectory(legacy)
+add_subdirectory(src)
+add_subdirectory(tests)
 add_subdirectory(examples)
+add_subdirectory(legacy)
 
 include_directories(lynxmotion-lss/analytics)
 
