@@ -27,6 +27,7 @@ function(lss_bus_example example_name)
 endfunction()
 
 add_subdirectory(BusScan)
+add_subdirectory(SimpleRead)
 add_subdirectory(ReadStateLoop)
 add_subdirectory(StateAndCommand)
 

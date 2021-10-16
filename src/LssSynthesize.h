@@ -63,6 +63,18 @@ public:
 
   // synthesize a request that will fulfil the given request objects
   // this doesnt exactly serialize the requests since it won't include arguments
+  inline const char* request(const Request& one) {
+    const char *head = _head;
+    Request req = Request::query(one);
+    uint8_t id = req.id;
+    req.flags.continuation = false;
+    req.flags.terminal = true;
+    write(req);
+    return head;
+  }
+
+  // synthesize a request that will fulfil the given request objects
+  // this doesnt exactly serialize the requests since it won't include arguments
   inline const char* request(Request* begin, Request* end) {
       if(begin >= end)
           return nullptr;

@@ -74,6 +74,12 @@ public:
         return request(arr, arr + limitN);
     }
 
+    int request(Request& one) {
+      auto test = synthesize.request(one);
+      channel.write(test);
+      return 1;
+    }
+
     int request(Request* begin, Request* end) {
         auto test = synthesize.request(begin, end);
         channel.write(test);
@@ -86,6 +92,10 @@ public:
     template<size_t N>
     int update(Request (&arr)[N]) {
         return update(arr, arr + N);
+    }
+
+    int update(Request& one) {
+      return update(&one, &one + 1);
     }
 
     template<size_t N>
