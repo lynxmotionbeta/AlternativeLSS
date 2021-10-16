@@ -7,7 +7,7 @@ add_executable(lss-read-state-loop ReadStateLoop.cpp)
 # currently no dependencies
 target_link_libraries(lss-read-state-loop PUBLIC lss-bus-static)
 add_dependencies(lss-read-state-loop lss-bus-static)
-target_include_directories(lss-read-state-loop PUBLIC ${LSS_INCLUDE_DIR})
+target_include_directories(lss-read-state-loop PUBLIC ${LSS_BUS_INCLUDE_DIR})
 
 #link_directories(${LSS_LIBRARY_DIR})
 
