@@ -17,7 +17,7 @@ TEST_CASE("synth a simple command", "[synthesis]") {
   Request req(15, Command::QD, 960);
   Synthesize<32> synth;
 
-  const char* result = synth.synthesize(req);
+  const char* result = synth(req);
   REQUIRE( strcmp(validate, result) == 0);
 }
 
@@ -26,7 +26,7 @@ TEST_CASE("synth a simple command with negative argument", "[synthesis]") {
   Request req(15, Command::QD, -960);
   Synthesize<32> synth;
 
-  const char* result = synth.synthesize(req);
+  const char* result = synth(req);
   REQUIRE( strcmp(validate, result) == 0);
 }
 
@@ -38,7 +38,7 @@ TEST_CASE("synth a local group command", "[synthesis]") {
   };
   Synthesize<32> synth;
 
-  const char* result = synth.synthesize(reqs);
+  const char* result = synth(reqs);
   REQUIRE( strcmp(validate, result) == 0);
 }
 
@@ -52,6 +52,6 @@ TEST_CASE("synth a multi-servo group command", "[synthesis]") {
   };
   Synthesize<32> synth;
 
-  const char* result = synth.synthesize(reqs);
+  const char* result = synth(reqs);
   REQUIRE( strcmp(validate, result) == 0);
 }

@@ -12,7 +12,7 @@ add_executable(lss-bus-tests ${SRC_LIST})
 target_link_libraries(lss-bus-tests PUBLIC lss-bus-static)
 target_link_libraries(lss-bus-tests PRIVATE Catch2::Catch2WithMain)
 
-target_include_directories(lss-bus-tests PUBLIC ${LSS_INCLUDE_DIR})
+target_include_directories(lss-bus-tests PUBLIC ${LSS_BUS_INCLUDE_DIR})
 
 include(CTest)
 include(Catch)
