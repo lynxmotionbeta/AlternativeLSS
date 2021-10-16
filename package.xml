@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>lynxmotion-lss</name>
-  <version>0.2.0</version>
+  <version>0.9.0</version>
   <description>
       Asynchronous control of Lynxmotion LSS smart servos.
   </description>
@@ -11,12 +11,10 @@
   <license>MIT</license>
 
   <url type="website">http://lynxmotion.com/</url>
-  <url type="repository">https://github.com/lynxmotionbeta/LSS-Arduino-2</url>
-  <url type="bugtracker">https://github.com/lynxmotionbeta/LSS-Arduino-2/issues</url>
+  <url type="repository">https://github.com/Lynxmotion/AlternativeLSS</url>
+  <url type="bugtracker">https://github.com/Lynxmotion/AlternativeLSS/issues</url>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-
-  <test_depend>boost</test_depend>
 
   <export>
   <build_type>ament_cmake</build_type>
