@@ -4,6 +4,7 @@ project(lynxmotion-lss)
 
 option(WITH_SHARED "enable building of the shared library" ON)
 option(WITH_STATIC "enable building of the static library" ON)
+option(WITH_LEGACY "compile the legacy LSS library" ON)
 option(STATIC_LINKAGE "link examples and tests to the static lib (default: shared linkage)" ON)
 option(WITH_DOCS "enable doxygen for generation of code documentation" OFF)
 option(SANITIZE "enable sanitize flags if available providing memory leak and other bad programmer errors" OFF)
@@ -108,7 +109,9 @@ set(LYNXMOTIONLSS_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "Location
 set(LYNXMOTIONLSS_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "Location of LynxmotionLSS binaries")
 
 add_subdirectory(src)
-add_subdirectory(legacy)
+if(WITH_LEGACY)
+    add_subdirectory(legacy)
+endif(WITH_LEGACY)
 add_subdirectory(tests)
 add_subdirectory(examples)
 
