@@ -1,8 +1,6 @@
 
 cmake_minimum_required(VERSION 3.2)
 
-find_package(Catch2 REQUIRED)
-
 set(SRC_LIST
         request-buffer.cpp parser.cpp synthesis.cpp)
 

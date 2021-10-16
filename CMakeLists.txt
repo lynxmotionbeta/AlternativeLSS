@@ -84,6 +84,9 @@ if(WITH_DOCS)
     endif(DOXYGEN_FOUND)
 endif(WITH_DOCS)
 
+# attempt to find catch2 for unit tests
+find_package(Catch2 REQUIRED)
+
 if(EFENCE)
     add_definitions(-DEFENCE)
     link_libraries(efence)
@@ -105,9 +108,9 @@ set(LYNXMOTIONLSS_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "Location
 set(LYNXMOTIONLSS_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "Location of LynxmotionLSS binaries")
 
 add_subdirectory(src)
+add_subdirectory(legacy)
 add_subdirectory(tests)
 add_subdirectory(examples)
-add_subdirectory(legacy)
 
 include_directories(lynxmotion-lss/analytics)
 

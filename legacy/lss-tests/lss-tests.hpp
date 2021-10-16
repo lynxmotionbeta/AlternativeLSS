@@ -6,7 +6,7 @@
 
 #include <LssCommunication.h>
 
-#include "catch.hpp"
+#include <catch2/catch_all.hpp>
 #include <string>
 
 #if !defined(ARDUINO)

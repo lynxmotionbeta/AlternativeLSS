@@ -68,8 +68,8 @@ add_library(lss-bus-shared SHARED ${LSS_BUS_TARGET_OBJECTS})
 #target_link_libraries(lss-bus-shared ...)
 
 # store location of sigint variables in the cache for other projects to reference
-set(LSS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "path to LSS bus library includes")
-set(LSS_LIBRARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "path to LSS bus library binaries")
+set(LSS_BUS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "path to LSS bus library includes")
+set(LSS_BUS_LIBRARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "path to LSS bus library binaries")
 #set(LSS_LINK_LIBRARIES ${Boost_LIBRARIES} ${JSON-C_LIBRARY} CACHE INTERNAL "")
 
 # attach version number to SO shared file

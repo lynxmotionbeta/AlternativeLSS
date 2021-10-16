@@ -66,8 +66,8 @@ add_library(lss-shared SHARED ${LSSLIB_TARGET_OBJECTS})
 #target_link_libraries(lss-shared ...)
 
 # store location of sigint variables in the cache for other projects to reference
-set(LSS_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "path to sigint library includes")
-set(LSS_LIBRARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "path to sigint library binaries")
+set(LSS_LEGACY_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "path to Legacy LSS library includes")
+set(LSS_LEGACY_LIBRARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "path to Legacy LSS library binaries")
 #set(LSS_LINK_LIBRARIES ${Boost_LIBRARIES} ${JSON-C_LIBRARY} CACHE INTERNAL "")
 
 # attach version number to SO shared file

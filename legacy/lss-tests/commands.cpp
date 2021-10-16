@@ -26,7 +26,7 @@ void test_serialize_command(const char* pkt, LssCommands cmd)
 {
   char buf[128];
   char* serialized = LynxPacket::commandCode(cmd, buf);
-  REQUIRE(NULL != serialized);
+  REQUIRE(nullptr != serialized);
   REQUIRE(0 == strcmp(pkt, buf));
 }
 
