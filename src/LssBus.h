@@ -53,17 +53,27 @@ public:
         return write(arr, arr + limitN);
     }
 
-    int write(Request& request) {
+    inline int write(std::initializer_list<Request> list) {
+      return write(list.begin(), list.end());
+    }
+
+    int write(const Request& request) {
         channel.write(synthesize(request));
         return 1;
     }
 
-    int write(Request&& request) {
+    int write(const Request&& request) {
         channel.write(synthesize(request));
         return 1;
     }
 
-    int write(Request* begin, Request* end) {
+    //template<class Itr>
+    //int write(Itr begin, Itr end) {
+    //  return write(begin, end);
+    //}
+
+    // todo: need to make this const
+    int write(const Request* begin, const Request* end) {
         channel.write(synthesize(begin, end));
         return end - begin;
     }
@@ -74,13 +84,12 @@ public:
         return request(arr, arr + limitN);
     }
 
-    int request(Request& one) {
-      auto test = synthesize.request(one);
-      channel.write(test);
+    int request(const Request& one) {
+      channel.write(synthesize.request(one));
       return 1;
     }
 
-    int request(Request* begin, Request* end) {
+    int request(const Request* begin, const Request* end) {
         auto test = synthesize.request(begin, end);
         channel.write(test);
         return end - begin;
@@ -151,7 +160,8 @@ public:
     }
 
 
-    int read_async(Request* begin, Request* end, bool sync) {
+    // todo: add sync parameter
+    int read_async(Request* begin, Request* end) {
     // block read until all packets are full
     parser.begin(begin, end);
     return 0;

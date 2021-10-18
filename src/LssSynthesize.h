@@ -17,16 +17,15 @@ public:
   : _head(buffer)
   {}
 
-  const char* operator()(Request& one) {
+  const char* operator()(const Request& one) {
     const char* head = _head;
-    one.flags.terminal = true;
-    write(one);
+    write(one, { .terminal = true });
     if(_head > buffer + sizeof(buffer)/2)
         _head = buffer;
     return head;
   }
 
-  const char* operator()(Request* begin, Request* end)
+  const char* operator()(const Request* begin, const Request* end)
   {
     if(begin >= end)
       return nullptr;
@@ -35,16 +34,18 @@ public:
 
     // first request
     uint8_t id = begin->id;
-    begin->flags.continuation = --count > 0;
-    begin->flags.terminal = !begin->flags.continuation;
-    write(*begin++);
+    RequestFlags flags = { .value = 0 };
+    flags.continuation = --count > 0;
+    flags.terminal = !flags.continuation;
+    write(*begin++, flags);
 
     while(begin < end) {
-      begin->flags.continuation = --count > 0;
-      begin->flags.terminal = !begin->flags.continuation;
-      begin->flags.addressed = begin->id != id;
+      flags = { .value = 0 };
+      flags.continuation = --count > 0;
+      flags.terminal = !flags.continuation;
+      flags.addressed = begin->id != id;
       id = begin->id;
-      write(*begin++);
+      write(*begin++, flags);
     }
 
     if(_head > buffer + sizeof(buffer)/2)
@@ -52,7 +53,7 @@ public:
     return head;
   }
 
-  inline const char* operator()(Request* begin, size_t count) {
+  inline const char* operator()(const Request* begin, size_t count) {
       return operator()(begin, begin + count);
   }
 
@@ -66,7 +67,6 @@ public:
   inline const char* request(const Request& one) {
     const char *head = _head;
     Request req = Request::query(one);
-    uint8_t id = req.id;
     req.flags.continuation = false;
     req.flags.terminal = true;
     write(req);
@@ -75,7 +75,7 @@ public:
 
   // synthesize a request that will fulfil the given request objects
   // this doesnt exactly serialize the requests since it won't include arguments
-  inline const char* request(Request* begin, Request* end) {
+  inline const char* request(const Request* begin, const Request* end) {
       if(begin >= end)
           return nullptr;
       int count = end - begin;
@@ -85,17 +85,19 @@ public:
       // first request
       req = Request::query(*begin++);
       uint8_t id = req.id;
-      req.flags.continuation = --count > 0;
-      req.flags.terminal = !req.flags.continuation;
-      write(req);
+      RequestFlags flags = { .value = 0 };
+      flags.continuation = --count > 0;
+      flags.terminal = !flags.continuation;
+      write(req, flags);
 
       while(begin < end) {
           req = Request::query(*begin++);
-          req.flags.continuation = --count > 0;
-          req.flags.terminal = !req.flags.continuation;
-          req.flags.addressed = req.id != id;
+          flags = { .value = 0 };
+          flags.continuation = --count > 0;
+          flags.terminal = !flags.continuation;
+          flags.addressed = req.id != id;
           id = req.id;
-          write(req);
+          write(req, flags);
       }
 
       if(_head > buffer + sizeof(buffer)/2)
@@ -103,7 +105,7 @@ public:
       return head;
   }
 
-  inline const char* request(Request* begin, size_t count) {
+  inline const char* request(const Request* begin, size_t count) {
       return request(begin, begin + count);
   }
 
@@ -134,15 +136,17 @@ protected:
       return write((uint32_t)i);
   }
 
-  void write(const Request& one) {
-    const char *head = _head;
+  inline void write(const Request& one) {
+    return write(one, one.flags);
+  }
 
-    const char* cmd_s = Command::to_string(one.command);
+  void write(const Request& one, RequestFlags flags) {
+    const char* cmd_s = command::to_string(one.command);
     if(cmd_s == nullptr)
       return;
 
-    if(one.flags.addressed) {
-        append( one.flags.reply ? '*' : '#' );
+    if(flags.addressed) {
+        append( flags.reply ? '*' : '#' );
       write(one.id);
     }
 
@@ -159,11 +163,11 @@ protected:
           append(',');
         write(one.args[i]);
       }
-    } else if(one.flags.continuation) {
+    } else if(flags.continuation) {
         append('0');
     }
 
-    if(one.flags.terminal)
+    if(flags.terminal)
         append('\r');
 
     *_head = 0;
