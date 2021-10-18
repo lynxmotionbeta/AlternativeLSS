@@ -68,10 +68,10 @@ public:
         return 1;
     }
 
-    //template<class Itr>
-    //int write(Itr begin, Itr end) {
-    //  return write(begin, end);
-    //}
+    inline int write(std::vector<Request>::const_iterator begin,
+               std::vector<Request>::const_iterator end) {
+      return write(&*begin, &*end);
+    }
 
     // todo: need to make this const
     int write(const Request* begin, const Request* end) {
@@ -112,6 +112,11 @@ public:
     int update(Request (&arr)[N], size_t limitN) {
         limitN = std::min(N, limitN);
         return update(arr, arr + limitN);
+    }
+
+    inline int update(std::vector<Request>::iterator begin,
+                     std::vector<Request>::iterator end) {
+      return update(&*begin, &*end);
     }
 
     // read until a \r is encountered

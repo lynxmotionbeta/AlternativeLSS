@@ -13,6 +13,12 @@ DeviceIndex::DeviceIndex()
   memset(servo_index_, 255, sizeof(servo_index_));
 }
 
+void DeviceIndex::clear() {
+  memset(servo_index_, 255, sizeof(servo_index_));
+  count_ = 0;
+  is_inverted_ = false;
+}
+
 bool DeviceIndex::append(uint8_t id) {
   if(!contains(id)) {
     servo_index_[count_++] = id;

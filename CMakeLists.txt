@@ -11,7 +11,7 @@ option(SANITIZE "enable sanitize flags if available providing memory leak and ot
 option(EFENCE "enable Electric Fence debugging by linking to lfence library" OFF)
 option(WITH_LIBFTDI "enable building of the libftdi user-space serial driver for LssChannel" OFF)
 option(WITH_COMPLIANCE "include Compliant Joint functionality" ON)
-option(WITH_ROS "compile as a ROS colcon package" OFF)
+option(WITH_ROS "compile Ros2 controls plugins if colcon is detected" ON)
 
 # check if we are running as a ROS colcon package
 if(DEFINED ENV{COLCON_PREFIX_PATH})
@@ -36,6 +36,11 @@ if(WITH_LIBFTDI)
     else()
         message(STATUS "libftdi or libusb not found, disabling the FTDI user-space LssChannel driver")
     endif()
+endif()
+
+if(WITH_ROS AND DEFINED ENV{ROS_VERSION} AND DEFINED ENV{COLCON_PREFIX_PATH})
+    message(STATUS "Ros2 environment found, configuring ROS controls component")
+    set(ENABLE_ROS2 1)
 endif()
 
 # find our debugger
@@ -101,10 +106,6 @@ if(SANITIZE)
 endif()
 
 
-if(WITH_ROS)
-    find_package(ament_cmake REQUIRED)
-endif()
-
 set(LYNXMOTIONLSS_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "Location of LynxmotionLSS source")
 set(LYNXMOTIONLSS_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "Location of LynxmotionLSS binaries")
 
@@ -115,11 +116,8 @@ endif(WITH_LEGACY)
 add_subdirectory(tests)
 add_subdirectory(examples)
 
-include_directories(lynxmotion-lss/analytics)
-
-if(WITH_ROS)
-    ament_export_include_directories(include)
-    ament_export_libraries(lss-static lss-shared)
-    ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
-    ament_package()
+if(ENABLE_ROS2)
+    add_subdirectory(ros2)
 endif()
+
+include_directories(lynxmotion-lss/analytics)

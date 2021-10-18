@@ -69,6 +69,8 @@ public:
 
   int scan(Bus& bus);
 
+  void clear();
+
   bool append(uint8_t id);
 
   inline bool contains(uint8_t id) const {
