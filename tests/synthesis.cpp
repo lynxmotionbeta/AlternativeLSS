@@ -5,7 +5,7 @@
 
 #include <catch2/catch_all.hpp>
 
-using namespace Lss;
+using namespace lss;
 
 
 /*
@@ -14,7 +14,7 @@ using namespace Lss;
 
 TEST_CASE("synth a simple command", "[synthesis]") {
   const char* validate = "#15QD960\r";
-  Request req(15, Command::QD, 960);
+  Request req(15, command::QD, 960);
   Synthesize<32> synth;
 
   const char* result = synth(req);
@@ -23,7 +23,7 @@ TEST_CASE("synth a simple command", "[synthesis]") {
 
 TEST_CASE("synth a simple command with negative argument", "[synthesis]") {
   const char* validate = "#15QD-960\r";
-  Request req(15, Command::QD, -960);
+  Request req(15, command::QD, -960);
   Synthesize<32> synth;
 
   const char* result = synth(req);
@@ -33,8 +33,8 @@ TEST_CASE("synth a simple command with negative argument", "[synthesis]") {
 TEST_CASE("synth a local group command", "[synthesis]") {
   const char* validate = "#15QD960T300\r";
   Request reqs[] = {
-    {15, Command::QD, 960},
-    {15, Command::T, 300}
+    {15, command::QD, 960},
+    {15, command::T, 300}
   };
   Synthesize<32> synth;
 
@@ -45,10 +45,10 @@ TEST_CASE("synth a local group command", "[synthesis]") {
 TEST_CASE("synth a multi-servo group command", "[synthesis]") {
   const char* validate = "#15QD960T300#5QD500T550\r";
   Request reqs[] = {
-      {15, Command::QD, 960},
-      {15, Command::T, 300},
-      {5, Command::QD, 500},
-      {5, Command::T, 550}
+      {15, command::QD, 960},
+      {15, command::T, 300},
+      {5, command::QD, 500},
+      {5, command::T, 550}
   };
   Synthesize<32> synth;
 

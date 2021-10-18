@@ -5,11 +5,22 @@
 #ifndef LSS_BUS_LSSCOMMAND_H
 #define LSS_BUS_LSSCOMMAND_H
 
-namespace Lss {
+namespace lss {
 
 const unsigned char BroadcastID = 254;
 
-namespace Command {
+typedef enum {
+  LedOff  = 0,
+  Red     = 1,
+  Green   = 2,
+  Blue    = 3,
+  Yellow  = 4,
+  Cyan    = 5,
+  Magenta = 6,
+  White   = 7
+} LssColors;
+
+namespace command {
   typedef enum {
     Unknown = 0,
     DBLT = 0,

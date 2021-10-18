@@ -5,11 +5,11 @@
 #include "LssBus.h"
 #include <unistd.h>
 
-namespace Lss {
+namespace lss {
 
 
 bool Bus::async_scan() {
-    Request req(BroadcastID, Command::QID, scan_slot_size_usec);
+    Request req(BroadcastID, command::QID, scan_slot_size_usec);
     channel.write(synthesize(req));
     return true;
 }

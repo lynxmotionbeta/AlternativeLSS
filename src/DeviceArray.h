@@ -7,9 +7,11 @@
 
 #include <iterator> // For std::forward_iterator_tag
 #include <cstddef>  // For std::ptrdiff_t
+#include <cassert>
 
+#include "LssBus.h"
 
-namespace Lss {
+namespace lss {
 
 template<class T, uint8_t min=0, uint8_t max=253>
 class DeviceArray

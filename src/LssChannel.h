@@ -21,8 +21,7 @@ class LynxServo;
 #include "platform/libftdi/LssFtdiChannel.h"
 #endif
 
-namespace Lss
-{
+namespace lss {
 
 class Channel
 {
@@ -35,7 +34,7 @@ class Channel
     ChannelDriverError begin(Stream & dev, int baudrate);
 #else
     // open port using standard linux /dev name or ftdi:<vendor>:<product>:<A,B,C,D>
-    Platform::ChannelDriverError open(const char * devname, int baudrate);
+    platform::ChannelDriverError open(const char * devname, int baudrate);
 #endif
 
     inline void close()
@@ -74,11 +73,11 @@ class Channel
     // todo: probably want a function to get access to handles that can be
     //  used in OS poll() for use in an Executer which can poll multiple buses.
 
-    const Platform::LssChannelDriver & driver() const { return *_driver; }
-    Platform::LssChannelDriver & driver() { return *_driver; }
+    const platform::LssChannelDriver & driver() const { return *_driver; }
+    platform::LssChannelDriver & driver() { return *_driver; }
 
   protected:
-    Platform::LssChannelDriver * _driver;
+    platform::LssChannelDriver * _driver;
 };
 
 } // ns: Lss

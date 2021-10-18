@@ -22,8 +22,8 @@
 #define IFLOG(x)
 #endif
 
-namespace Lss {
-namespace Platform {
+namespace lss {
+namespace platform {
 
 PosixChannel::PosixChannel()
 : devname(nullptr), baudrate(115200), fd(0), restore_tio(false), restore_serial_flags(0)

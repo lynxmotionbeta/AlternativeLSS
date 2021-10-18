@@ -6,8 +6,8 @@
 
 #include <cstdint>
 
-namespace Lss {
-namespace Platform {
+namespace lss {
+namespace platform {
 
 typedef enum ChannelState {
     ChannelStopped,

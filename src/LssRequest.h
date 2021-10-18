@@ -12,7 +12,7 @@
 
 #include "LssCommand.h"
 
-namespace Lss {
+namespace lss {
 
   #define MAX_ARGS 8
 
@@ -40,32 +40,32 @@ namespace Lss {
   class Request {
   public:
     Request()
-    : id(0), command(Command::Unknown), flags({ .value =  0 }),
+    : id(0), command(command::Unknown), flags({ .value =  0 }),
           nargs(0), args{0}
     {}
 
-    Request(uint8_t _id, Command::ID _command)
+    Request(uint8_t _id, command::ID _command)
     : id(_id), command(_command), flags({ .addressed =  true }),
           nargs(0), args{0}
     {}
 
-    Request(uint8_t _id, Command::ID _command, cmd_arg_t arg1)
+    Request(uint8_t _id, command::ID _command, cmd_arg_t arg1)
     : id(_id), command(_command), flags({ .addressed =  true }),
           nargs(1), args{arg1,0}
     {}
 
-    Request(uint8_t _id, Command::ID _command, cmd_arg_t arg1, cmd_arg_t arg2)
+    Request(uint8_t _id, command::ID _command, cmd_arg_t arg1, cmd_arg_t arg2)
     : id(_id), command(_command), flags({ .addressed =  true }),
           nargs(2), args{arg1, arg2,0}
     {}
 
-    Request(uint8_t _id, Command::ID _command,
+    Request(uint8_t _id, command::ID _command,
             cmd_arg_t arg1, cmd_arg_t arg2, cmd_arg_t arg3)
     : id(_id), command(_command), flags({ .addressed =  true }),
           nargs(3), args{arg1, arg2, arg3,0}
     {}
 
-    Request(uint8_t _id, Command::ID _command,
+    Request(uint8_t _id, command::ID _command,
             std::initializer_list<cmd_arg_t> args_list)
     : id(_id), command(_command), flags({ .addressed =  true }),
           nargs(std::min((size_t)MAX_ARGS, args_list.size()))
@@ -91,15 +91,15 @@ namespace Lss {
 
     void clear() {
       id = 0;
-      command = Command::Unknown;
+      command = command::Unknown;
       flags.value = 0;
       nargs = 0;
       memset(args, 0, sizeof(args));
     }
 
     uint8_t id;
+    command::ID command;
     RequestFlags flags;
-    Command::ID command;
 
     // arguments in or out
     uint8_t nargs;

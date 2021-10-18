@@ -5,7 +5,7 @@
 #include <iostream>
 #include <unistd.h>
 
-using namespace Lss;
+using namespace lss;
 
 /// Repeat the update 4 times a second
 //#define UPDATE_DELAY			12
@@ -55,9 +55,9 @@ int main() {
     Request state_req[60];
     size_t state_n = 0;
     for(auto s = servos.begin(), _s = servos.end(); s!=_s; s++) {
-        state_req[state_n++] = Request(s.id(), Command::QD);
-        state_req[state_n++] = Request(s.id(), Command::QC);
-        state_req[state_n++] = Request(s.id(), Command::QS);
+        state_req[state_n++] = Request(s.id(), command::QD);
+        state_req[state_n++] = Request(s.id(), command::QC);
+        state_req[state_n++] = Request(s.id(), command::QS);
     }
 
     // estimate what our loop frequency can comfortably be
@@ -90,9 +90,9 @@ int main() {
                 if(preq->flags.parsed) {
                     auto & servo = servos[preq->id];
                     switch (preq->command) {
-                        case Command::QD: servo.position = preq->args[0]; break;
-                        case Command::QC: servo.amps = preq->args[0]; break;
-                        case Command::QS: servo.speed = preq->args[0]; break;
+                        case command::QD: servo.position = preq->args[0]; break;
+                        case command::QC: servo.amps = preq->args[0]; break;
+                        case command::QS: servo.speed = preq->args[0]; break;
                         default: break;// nothing
                     }
                 }

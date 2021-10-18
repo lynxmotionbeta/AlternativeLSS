@@ -7,7 +7,7 @@
 
 #include "LssRequest.h"
 
-namespace Lss {
+namespace lss {
 
 template<int N>
 class Synthesize

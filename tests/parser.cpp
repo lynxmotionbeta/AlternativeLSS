@@ -2,7 +2,7 @@
 
 #include <catch2/catch_all.hpp>
 
-using namespace Lss;
+using namespace lss;
 
 
 /*
@@ -20,7 +20,7 @@ TEST_CASE("parse a simple response", "[parser]") {
       REQUIRE(req.id == 15);
       REQUIRE(req.nargs == 1);
       REQUIRE(req.args[0] == 960);
-      REQUIRE(req.command == Command::QD);
+      REQUIRE(req.command == command::QD);
       REQUIRE(req.flags.addressed);
       REQUIRE(req.flags.reply);
       REQUIRE(req.flags.parsed);
@@ -44,7 +44,7 @@ TEST_CASE("parse a local group response", "[parser]") {
           REQUIRE(req.id == 15);
           REQUIRE(req.nargs == 1);
           REQUIRE(req.args[0] == 960);
-          REQUIRE(req.command == Command::QD);
+          REQUIRE(req.command == command::QD);
           REQUIRE(req.flags.addressed);
           REQUIRE(req.flags.reply);
           REQUIRE(req.flags.parsed);
@@ -55,7 +55,7 @@ TEST_CASE("parse a local group response", "[parser]") {
           REQUIRE(req.id == 15);
           REQUIRE(req.nargs == 1);
           REQUIRE(req.args[0] == 400);
-          REQUIRE(req.command == Command::T);
+          REQUIRE(req.command == command::T);
           REQUIRE_FALSE(req.flags.addressed);
           REQUIRE(req.flags.reply);
           REQUIRE(req.flags.parsed);
@@ -83,7 +83,7 @@ TEST_CASE("parse a group response of 2 servos", "[parser]") {
           REQUIRE(req.id == 15);
           REQUIRE(req.nargs == 1);
           REQUIRE(req.args[0] == 960);
-          REQUIRE(req.command == Command::QD);
+          REQUIRE(req.command == command::QD);
           REQUIRE(req.flags.addressed);
           REQUIRE(req.flags.reply);
           REQUIRE(req.flags.parsed);
@@ -94,7 +94,7 @@ TEST_CASE("parse a group response of 2 servos", "[parser]") {
           REQUIRE(req.id == 15);
           REQUIRE(req.nargs == 1);
           REQUIRE(req.args[0] == 400);
-          REQUIRE(req.command == Command::T);
+          REQUIRE(req.command == command::T);
           REQUIRE_FALSE(req.flags.addressed);
           REQUIRE(req.flags.reply);
           REQUIRE(req.flags.parsed);
@@ -105,7 +105,7 @@ TEST_CASE("parse a group response of 2 servos", "[parser]") {
           REQUIRE(req.id == 5);
           REQUIRE(req.nargs == 1);
           REQUIRE(req.args[0] == 500);
-          REQUIRE(req.command == Command::QD);
+          REQUIRE(req.command == command::QD);
           REQUIRE(req.flags.addressed);
           REQUIRE(req.flags.reply);
           REQUIRE(req.flags.parsed);
@@ -116,7 +116,7 @@ TEST_CASE("parse a group response of 2 servos", "[parser]") {
           REQUIRE(req.id == 5);
           REQUIRE(req.nargs == 1);
           REQUIRE(req.args[0] == 750);
-          REQUIRE(req.command == Command::T);
+          REQUIRE(req.command == command::T);
           REQUIRE_FALSE(req.flags.addressed);
           REQUIRE(req.flags.reply);
           REQUIRE(req.flags.parsed);
@@ -144,7 +144,7 @@ TEST_CASE("parse a group response of 2 servos seperated by CR", "[parser]") {
         REQUIRE(req.id == 15);
         REQUIRE(req.nargs == 1);
         REQUIRE(req.args[0] == 960);
-        REQUIRE(req.command == Command::QD);
+        REQUIRE(req.command == command::QD);
         REQUIRE(req.flags.addressed);
         REQUIRE(req.flags.reply);
         REQUIRE(req.flags.parsed);
@@ -155,7 +155,7 @@ TEST_CASE("parse a group response of 2 servos seperated by CR", "[parser]") {
         REQUIRE(req.id == 15);
         REQUIRE(req.nargs == 1);
         REQUIRE(req.args[0] == 400);
-        REQUIRE(req.command == Command::T);
+        REQUIRE(req.command == command::T);
         REQUIRE_FALSE(req.flags.addressed);
         REQUIRE(req.flags.reply);
         REQUIRE(req.flags.parsed);
@@ -166,7 +166,7 @@ TEST_CASE("parse a group response of 2 servos seperated by CR", "[parser]") {
         REQUIRE(req.id == 5);
         REQUIRE(req.nargs == 1);
         REQUIRE(req.args[0] == 500);
-        REQUIRE(req.command == Command::QD);
+        REQUIRE(req.command == command::QD);
         REQUIRE(req.flags.addressed);
         REQUIRE(req.flags.reply);
         REQUIRE(req.flags.parsed);
@@ -177,7 +177,7 @@ TEST_CASE("parse a group response of 2 servos seperated by CR", "[parser]") {
         REQUIRE(req.id == 5);
         REQUIRE(req.nargs == 1);
         REQUIRE(req.args[0] == 750);
-        REQUIRE(req.command == Command::T);
+        REQUIRE(req.command == command::T);
         REQUIRE_FALSE(req.flags.addressed);
         REQUIRE(req.flags.reply);
         REQUIRE(req.flags.parsed);
@@ -211,7 +211,7 @@ TEST_CASE("parse a group response of 2 servos into an array", "[parser]") {
   REQUIRE(req[0].id == 15);
   REQUIRE(req[0].nargs == 1);
   REQUIRE(req[0].args[0] == 960);
-  REQUIRE(req[0].command == Command::QD);
+  REQUIRE(req[0].command == command::QD);
   REQUIRE(req[0].flags.addressed);
   REQUIRE(req[0].flags.reply);
   REQUIRE(req[0].flags.parsed);
@@ -221,7 +221,7 @@ TEST_CASE("parse a group response of 2 servos into an array", "[parser]") {
   REQUIRE(req[1].id == 15);
   REQUIRE(req[1].nargs == 1);
   REQUIRE(req[1].args[0] == 400);
-  REQUIRE(req[1].command == Command::T);
+  REQUIRE(req[1].command == command::T);
   REQUIRE_FALSE(req[1].flags.addressed);
   REQUIRE(req[1].flags.reply);
   REQUIRE(req[1].flags.parsed);
@@ -231,7 +231,7 @@ TEST_CASE("parse a group response of 2 servos into an array", "[parser]") {
   REQUIRE(req[2].id == 5);
   REQUIRE(req[2].nargs == 1);
   REQUIRE(req[2].args[0] == 500);
-  REQUIRE(req[2].command == Command::QD);
+  REQUIRE(req[2].command == command::QD);
   REQUIRE(req[2].flags.addressed);
   REQUIRE(req[2].flags.reply);
   REQUIRE(req[2].flags.parsed);
@@ -241,7 +241,7 @@ TEST_CASE("parse a group response of 2 servos into an array", "[parser]") {
   REQUIRE(req[3].id == 5);
   REQUIRE(req[3].nargs == 1);
   REQUIRE(req[3].args[0] == 750);
-  REQUIRE(req[3].command == Command::T);
+  REQUIRE(req[3].command == command::T);
   REQUIRE_FALSE(req[3].flags.addressed);
   REQUIRE(req[3].flags.reply);
   REQUIRE(req[3].flags.parsed);

@@ -7,7 +7,7 @@
 
 #include "LssRequest.h"
 
-namespace Lss {
+namespace lss {
 
 using index_t = int;
 using ref_count_t = uint16_t;

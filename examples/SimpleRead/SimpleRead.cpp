@@ -5,7 +5,7 @@
 #include <iostream>
 #include <unistd.h>
 
-using namespace Lss;
+using namespace lss;
 
 
 int main() {
@@ -16,7 +16,7 @@ int main() {
   // put your setup code here, to run once:
   bus.open("/dev/ttyUSB0", 921600);
 
-  Request position_req(5, Command::QD);
+  Request position_req(5, command::QD);
 
   size_t N = 10;
   while(N-- > 0) {
@@ -25,7 +25,7 @@ int main() {
 
     // wait some time before expecting an answer
     if(0 != bus.update(position_req)) {
-      if (position_req.nargs > 0 && position_req.command == Command::QD) {
+      if (position_req.nargs > 0 && position_req.command == command::QD) {
         printf("  %d\n", position_req.args[0]);
       }
     }

@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-namespace Lss
-{
+namespace lss {
 
 Channel::Channel()
     : _driver(nullptr)
@@ -30,7 +29,7 @@ ChannelDriverError LssChannel::begin(Stream & dev, int baudrate)
     return rv;
 }
 #else
-Platform::ChannelDriverError Channel::open(const char * devname, int baudrate)
+platform::ChannelDriverError Channel::open(const char * devname, int baudrate)
 {
     if (strncasecmp("ftdi:", devname, 5) == 0) {
 #if defined(HAS_LIBFTDI)
@@ -40,18 +39,18 @@ Platform::ChannelDriverError Channel::open(const char * devname, int baudrate)
         printf("ftdi support not enabled\n");
 #endif
     } else {
-        _driver = new Platform::PosixChannel();
+        _driver = new platform::PosixChannel();
     }
 
     if (_driver) {
         // open the driver channel
-        Platform::ChannelDriverError rv = _driver->open(devname, baudrate);
-        if (rv != Platform::DriverSuccess)
+        platform::ChannelDriverError rv = _driver->open(devname, baudrate);
+        if (rv != platform::DriverSuccess)
             delete _driver;
 
         return rv;
     } else
-        return Platform::DriverOpenFailed;
+        return platform::DriverOpenFailed;
 }
 #endif
 

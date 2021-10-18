@@ -4,8 +4,8 @@
 
 #include <termios.h>
 
-namespace Lss {
-    namespace Platform {
+namespace lss {
+    namespace platform {
 
 
 class PosixChannel : public LssChannelDriver {

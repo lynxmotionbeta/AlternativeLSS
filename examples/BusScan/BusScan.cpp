@@ -5,7 +5,7 @@
 #include <iostream>
 #include <unistd.h>
 
-using namespace Lss;
+using namespace lss;
 
 struct Servo {
   // This is an object you create, implement your

@@ -14,7 +14,7 @@
 #include <cstdio>       // todo: get rid of all printf debugging statements
 #include <unistd.h>
 
-namespace Lss {
+namespace lss {
 
 class Bus {
 public:
@@ -29,7 +29,7 @@ public:
   }
 #else
   // open port using standard linux /dev name or ftdi:<vendor>:<product>:<A,B,C,D>
-  inline Platform::ChannelDriverError open(const char * devname, int baudrate) {
+  inline platform::ChannelDriverError open(const char * devname, int baudrate) {
       return channel.open(devname, baudrate);
   }
 #endif

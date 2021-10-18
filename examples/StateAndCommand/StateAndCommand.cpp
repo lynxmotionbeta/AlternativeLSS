@@ -5,7 +5,7 @@
 #include <iostream>
 #include <unistd.h>
 
-using namespace Lss;
+using namespace lss;
 
 /// Repeat the update 4 times a second
 //#define UPDATE_DELAY			12
@@ -56,27 +56,27 @@ int main() {
     Request command1_req[20], command2_req[20];
     size_t state_n = 0, command_n = 0;
     for(auto s = servos.begin(), _s = servos.end(); s!=_s; s++) {
-        state_req[state_n++] = Request(s.id(), Command::QD);
-        state_req[state_n++] = Request(s.id(), Command::QC);
-        state_req[state_n++] = Request(s.id(), Command::QS);
+        state_req[state_n++] = Request(s.id(), command::QD);
+        state_req[state_n++] = Request(s.id(), command::QC);
+        state_req[state_n++] = Request(s.id(), command::QS);
 
         int local_joint = s.id() % 10;
         switch(local_joint) {
             case 1:
-                command1_req[command_n] = Request(s.id(), Command::L);
-                command2_req[command_n++] = Request(s.id(), Command::L);
+                command1_req[command_n] = Request(s.id(), command::L);
+                command2_req[command_n++] = Request(s.id(), command::L);
                 break;
             case 2:
-                command1_req[command_n] = Request(s.id(), Command::D, -750);
-                command2_req[command_n++] = Request(s.id(), Command::D, -550);
+                command1_req[command_n] = Request(s.id(), command::D, -750);
+                command2_req[command_n++] = Request(s.id(), command::D, -550);
                 break;
             case 3:
-                command1_req[command_n] = Request(s.id(), Command::D, -450);
-                command2_req[command_n++] = Request(s.id(), Command::D, 450);
+                command1_req[command_n] = Request(s.id(), command::D, -450);
+                command2_req[command_n++] = Request(s.id(), command::D, 450);
                 break;
             default:
-                command1_req[command_n] = Request(s.id(), Command::D, -450);
-                command2_req[command_n++] = Request(s.id(), Command::D, 450);
+                command1_req[command_n] = Request(s.id(), command::D, -450);
+                command2_req[command_n++] = Request(s.id(), command::D, 450);
                 break;
         }
     }
@@ -120,9 +120,9 @@ int main() {
 
                     // copy position, force and speed into our local Servo object
                     switch (preq->command) {
-                        case Command::QD: servo.position = preq->args[0]; break;
-                        case Command::QC: servo.amps = preq->args[0]; break;
-                        case Command::QS: servo.speed = preq->args[0]; break;
+                        case command::QD: servo.position = preq->args[0]; break;
+                        case command::QC: servo.amps = preq->args[0]; break;
+                        case command::QS: servo.speed = preq->args[0]; break;
                         default: break;// nothing
                     }
                 }

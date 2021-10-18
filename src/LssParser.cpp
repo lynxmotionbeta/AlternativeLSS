@@ -7,7 +7,7 @@
 #include <malloc.h>
 
 
-namespace Lss {
+namespace lss {
 
 #ifndef IS_DIGIT
 #define IS_DIGIT(c) (c >= '0' && c <= '9')
@@ -347,7 +347,7 @@ restart_lexer:
             if(lexicon_node->c == 0 && lexicon_node->code != TERMINAL_CODE) {
                 // finished parsing command
                 //
-                _current->command = (Command::ID)lexicon_node->code;
+                _current->command = (command::ID)lexicon_node->code;
 
                 // determine what kind of value we are getting if any
                 if(c == '\r') {
@@ -463,7 +463,7 @@ restart_lexer:
           // This is a state sub-routine that clears the request object
           // and then proceeds to the original parse state.
           parser_subroutine_state = Idle; // returns to original state
-          _current->command = Command::Unknown;
+          _current->command = command::Unknown;
           _current->flags.parsed
               = _current->flags.addressed
               = _current->flags.continuation

@@ -4,8 +4,8 @@
 
 #include "LssCommand.h"
 
-namespace Lss {
-namespace Command {
+namespace lss {
+namespace command {
 
 const char* to_string(ID cmd) {
   switch(cmd) {

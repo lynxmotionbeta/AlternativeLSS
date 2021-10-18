@@ -8,7 +8,7 @@
 #include "LssRequest.h"
 #include <cstdint>
 
-namespace Lss {
+namespace lss {
 
 typedef enum {
   NoError = 0,

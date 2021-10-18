@@ -2,7 +2,7 @@
 
 #include <catch2/catch_all.hpp>
 
-using namespace Lss;
+using namespace lss;
 
 #if 0
 template<int N>
