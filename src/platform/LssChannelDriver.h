@@ -39,6 +39,8 @@ typedef enum {
 
 class LssChannel;
 
+const char* lss_bus_driver_error_str(ChannelDriverError err);
+
 class LssChannelDriver
 {
 public:

@@ -11,7 +11,7 @@ namespace lss {
 class PosixChannel : public LssChannelDriver {
 public:
     explicit PosixChannel();
-    virtual ~PosixChannel();
+    ~PosixChannel() override;
 
     ChannelDriverError open(const char* devname, int baudrate)  override;
 
@@ -19,7 +19,7 @@ public:
 
     int data_available() override;
 
-    int write(const char* text, int text_len = -1) override;
+    int write(const char* text, int text_len) override;
 
     int read(char* dest, int max_length) override;
 

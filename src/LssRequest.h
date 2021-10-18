@@ -68,7 +68,7 @@ namespace lss {
     Request(uint8_t _id, command::ID _command,
             std::initializer_list<cmd_arg_t> args_list)
     : id(_id), command(_command), flags({ .addressed =  true }),
-          nargs(std::min((size_t)MAX_ARGS, args_list.size()))
+          nargs(std::min((size_t)MAX_ARGS, args_list.size())), args{0}
     {
       auto al_itr = args_list.begin();
       for(int i=0; i < nargs; i++)

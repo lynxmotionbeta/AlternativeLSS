@@ -5,8 +5,9 @@
 #ifndef LSS_BUS_LSSBUS_H
 #define LSS_BUS_LSSBUS_H
 
-#include "LssParser.h"
+#include "DeviceIndex.h"
 #include "LssChannel.h"
+#include "LssParser.h"
 #include "LssSynthesize.h"
 
 #include <vector>
@@ -166,6 +167,24 @@ public:
     parser.begin(begin, end);
     return 0;
     }
+
+
+    int write_slot_config(DeviceIndex& index) {
+      std::vector<Request> reqs;
+      reqs.emplace_back(BroadcastID, command::SLOTCOUNT, 0);
+      uint8_t n;
+      for(auto i = index.begin(), _i = index.end(); i!=_i; i++) {
+        reqs.emplace_back(i.value(), command::SLOT, i.key());
+        n++;
+      }
+
+      // update the slot count
+      reqs[0].args[0] = n;
+
+      write(&*reqs.begin(), &*reqs.end());
+      return n;
+    }
+
 
 protected:
     Channel channel;
