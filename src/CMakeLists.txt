@@ -9,6 +9,7 @@ set(INCLUDE_FILES
 		LssSynthesize.h
 		LssChannel.h
 		DeviceArray.h
+		DeviceIndex.h
 		platform/LssChannelDriver.h
 		platform/posix/LssPosixChannel.h
 )
@@ -19,7 +20,10 @@ set(SOURCE_FILES
 		RequestBuffer.cpp
         LssBus.cpp
 		LssChannel.cpp
-		platform/posix/LssPosixChannel.cpp)
+		DeviceIndex.cpp
+		platform/LssChannelDriver.cpp
+		platform/posix/LssPosixChannel.cpp
+)
 
 
 # we first add our intermediate object library
