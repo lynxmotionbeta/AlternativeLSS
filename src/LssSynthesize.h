@@ -24,35 +24,7 @@ public:
 
   const char* operator()(const Request& one) {
     const char* head = _head;
-    write(one, { .terminal = true });
-    if(_head > buffer + sizeof(buffer)/2)
-        _head = buffer;
-    return head;
-  }
-
-  const char* operator()(const Request* begin, const Request* end)
-  {
-    if(begin >= end)
-      return nullptr;
-    int count = end - begin;
-    const char* head = _head;
-
-    // first request
-    uint8_t id = begin->id;
-    RequestFlags flags = { .value = 0 };
-    flags.continuation = --count > 0;
-    flags.terminal = !flags.continuation;
-    write(*begin++, flags);
-
-    while(begin < end) {
-      flags = { .value = 0 };
-      flags.continuation = --count > 0;
-      flags.terminal = !flags.continuation;
-      flags.addressed = begin->id != id;
-      id = begin->id;
-      write(*begin++, flags);
-    }
-
+    write(one, RequestFlags {{ .addressed = true, .terminal = true }});
     if(_head > buffer + sizeof(buffer)/2)
         _head = buffer;
     return head;
@@ -60,6 +32,15 @@ public:
 
   inline const char* operator()(const Request* begin, size_t count) {
       return operator()(begin, begin + count);
+  }
+
+  inline const char* operator()(std::vector<Request>& requests) {
+    return operator()(&*requests.begin(), &*requests.end());
+  }
+
+  inline const char* operator()(std::vector<Request>::const_iterator begin,
+      std::vector<Request>::const_iterator end) {
+    return operator()(&*begin, &*end);
   }
 
   template<int size>
@@ -71,10 +52,55 @@ public:
   // this doesnt exactly serialize the requests since it won't include arguments
   inline const char* request(const Request& one) {
     const char *head = _head;
-    Request req = Request::query(one);
-    req.flags.continuation = false;
-    req.flags.terminal = true;
-    write(req);
+    if(one.enable) {
+      Request req = Request::query(one);
+      req.flags.continuation = false;
+      req.flags.terminal = true;
+      write(req);
+    }
+    return head;
+  }
+
+  const char* operator()(const Request* begin, const Request* end)
+  {
+    if(begin >= end)
+      return nullptr;
+
+    // skip any disabled requests at the beginning
+    while(!begin->enable && begin < end)
+      begin++;
+    // skip any disabled requests at the end
+    while(end > begin && !(end - 1)->enable)
+      --end;
+
+    int count = end - begin;
+    const char* head = _head;
+
+    // first request
+    uint8_t id = begin->id;
+    RequestFlags flags = {{
+      .continuation = --count > 0,
+      .addressed = true
+    }};
+    flags.terminal = !flags.continuation;
+    write(*begin++, flags);
+
+    while(begin < end) {
+      --count;
+      if(begin->enable) {
+        flags = {{
+          .continuation = count > 0,
+          .addressed = begin->id != id,
+          .terminal = count == 0
+        }};
+        id = begin->id;
+        write(*begin++, flags);
+      } else
+        begin++;
+    }
+
+    if(_head > buffer + sizeof(buffer)/2)
+      _head = buffer;
     return head;
   }
 
@@ -83,6 +109,14 @@ public:
   inline const char* request(const Request* begin, const Request* end) {
       if(begin >= end)
           return nullptr;
+
+      // skip any disabled requests at the beginning
+      while(!begin->enable && begin < end)
+        begin++;
+      // skip any disabled requests at the end
+      while(end > begin && !(end - 1)->enable)
+        --end;
+
       int count = end - begin;
       const char* head = _head;
       Request req;
@@ -90,19 +124,26 @@ public:
       // first request
       req = Request::query(*begin++);
       uint8_t id = req.id;
-      RequestFlags flags = { .value = 0 };
-      flags.continuation = --count > 0;
+      auto flags = RequestFlags {{
+          .continuation = --count > 0,
+          .addressed = true
+      }};
       flags.terminal = !flags.continuation;
       write(req, flags);
 
       while(begin < end) {
+        --count;
+        if(begin->enable) {
           req = Request::query(*begin++);
-          flags = { .value = 0 };
-          flags.continuation = --count > 0;
-          flags.terminal = !flags.continuation;
-          flags.addressed = req.id != id;
+          flags = {{
+              .continuation = count > 0,
+              .addressed = begin->id != id,
+              .terminal = count == 0
+          }};
           id = req.id;
           write(req, flags);
+        } else
+          begin++;
       }
 
       if(_head > buffer + sizeof(buffer)/2)
@@ -146,6 +187,8 @@ protected:
   }
 
   void write(const Request& one, RequestFlags flags) {
+    if(!one.enable)
+      return;
     const char* cmd_s = command::to_string(one.command);
     if(cmd_s == nullptr)
       return;

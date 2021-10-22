@@ -37,37 +37,43 @@ namespace lss {
     uint16_t value;
   } RequestFlags;
 
+
+  // todo: split this into Request/Reply classes. The flags will only be in
+  //  the Reply because how the bus transmits a request is up to it not the
+  //  user, but the user may want to know how something was received (how the
+  //  servo transmitted back.) It also means the Request can often be const
+  //  or const initialized.
   class Request {
   public:
     Request()
-    : id(0), command(command::Unknown), flags({ .value =  0 }),
+    : id(0), command(command::Unknown), enable(true), flags({ .value =  0 }),
           nargs(0), args{0}
     {}
 
     Request(uint8_t _id, command::ID _command)
-    : id(_id), command(_command), flags({ .addressed =  true }),
+    : id(_id), command(_command), enable(true), flags({ .addressed =  true }),
           nargs(0), args{0}
     {}
 
     Request(uint8_t _id, command::ID _command, cmd_arg_t arg1)
-    : id(_id), command(_command), flags({ .addressed =  true }),
+    : id(_id), command(_command), enable(true), flags({ .addressed =  true }),
           nargs(1), args{arg1,0}
     {}
 
     Request(uint8_t _id, command::ID _command, cmd_arg_t arg1, cmd_arg_t arg2)
-    : id(_id), command(_command), flags({ .addressed =  true }),
+    : id(_id), command(_command), enable(true), flags({ .addressed =  true }),
           nargs(2), args{arg1, arg2,0}
     {}
 
     Request(uint8_t _id, command::ID _command,
             cmd_arg_t arg1, cmd_arg_t arg2, cmd_arg_t arg3)
-    : id(_id), command(_command), flags({ .addressed =  true }),
+    : id(_id), command(_command), enable(true), flags({ .addressed =  true }),
           nargs(3), args{arg1, arg2, arg3,0}
     {}
 
     Request(uint8_t _id, command::ID _command,
             std::initializer_list<cmd_arg_t> args_list)
-    : id(_id), command(_command), flags({ .addressed =  true }),
+    : id(_id), command(_command), enable(true), flags({ .addressed =  true }),
           nargs(std::min((size_t)MAX_ARGS, args_list.size())), args{0}
     {
       auto al_itr = args_list.begin();
@@ -93,12 +99,14 @@ namespace lss {
       id = 0;
       command = command::Unknown;
       flags.value = 0;
+      enable = true;
       nargs = 0;
       memset(args, 0, sizeof(args));
     }
 
     uint8_t id;
     command::ID command;
+    bool enable;
     RequestFlags flags;
 
     // arguments in or out
