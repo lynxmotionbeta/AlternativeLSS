@@ -68,6 +68,10 @@ public:
         return 1;
     }
 
+    inline int write(const std::vector<Request>& requests) {
+      return write(&*requests.begin(), &*requests.end());
+    }
+
     inline int write(std::vector<Request>::const_iterator begin,
                std::vector<Request>::const_iterator end) {
       return write(&*begin, &*end);
@@ -175,19 +179,7 @@ public:
 
 
     int write_slot_config(DeviceIndex& index) {
-      std::vector<Request> reqs;
-      reqs.emplace_back(BroadcastID, command::SLOTCOUNT, 0);
-      uint8_t n;
-      for(auto i = index.begin(), _i = index.end(); i!=_i; i++) {
-        reqs.emplace_back(i.value(), command::SLOT, i.key());
-        n++;
-      }
-
-      // update the slot count
-      reqs[0].args[0] = n;
-
-      write(&*reqs.begin(), &*reqs.end());
-      return n;
+      return write(generate_slot_config(index));
     }
 
 

@@ -23,7 +23,7 @@ set(SOURCE_FILES
 		DeviceIndex.cpp
 		platform/LssChannelDriver.cpp
 		platform/posix/LssPosixChannel.cpp
-)
+        LssSynthesize.cpp)
 
 
 # we first add our intermediate object library

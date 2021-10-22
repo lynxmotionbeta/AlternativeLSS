@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.2)
 
 set(SRC_LIST
-        request-buffer.cpp parser.cpp synthesis.cpp)
+        request-buffer.cpp parser.cpp synthesis.cpp indexes.cc)
 
 message(STATUS "test sources ${SRC_LIST}")
 

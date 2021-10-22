@@ -6,8 +6,13 @@
 #define LSS_BUS_LSSSYNTHESIZE_H
 
 #include "LssRequest.h"
+#include <vector>
 
 namespace lss {
+
+class DeviceIndex;
+
+std::vector<Request> generate_slot_config(DeviceIndex& index);
 
 template<int N>
 class Synthesize
