@@ -23,19 +23,20 @@ import xacro
 
 
 def generate_launch_description():
+    lss_package_path = os.path.join(get_package_share_directory('ros2_lss_bus'))
 
     # Get URDF via xacro
     robot_description_path = os.path.join(
-        get_package_share_directory('lss_hardware'),
+        lss_package_path,
         'urdf',
-        'lss_hw_example.urdf.xacro')
+        'ros2_lss_bus.urdf.xacro')
     robot_description_config = xacro.process_file(robot_description_path)
     robot_description = {'robot_description': robot_description_config.toxml()}
 
-    lss_hardware_controller = os.path.join(
-        get_package_share_directory('lss_hardware'),
+    robot_controllers = os.path.join(
+        lss_package_path,
         'config',
-        'lss_hw_example.yaml'
+        'ros2_lss_bus.yaml'
         )
 
     #joint_state_publisher_node = Node(
@@ -53,7 +54,7 @@ def generate_launch_description():
       Node(
         package='controller_manager',
         executable='ros2_control_node',
-        parameters=[robot_description, lss_hardware_controller],
+        parameters=[robot_description, robot_controllers],
         output={
           'stdout': 'screen',
           'stderr': 'screen',

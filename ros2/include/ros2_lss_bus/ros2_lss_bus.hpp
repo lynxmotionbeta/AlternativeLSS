@@ -39,12 +39,11 @@ namespace lynxmotion {
     // joint flags
     constexpr const auto JF_INVERT = (1 << 0);
 
-    class LynxmotionServoHardware
-            : public hardware_interface::BaseInterface<hardware_interface::SystemInterface> {
+    class LssBusHardware : public hardware_interface::BaseInterface<hardware_interface::SystemInterface> {
     public:
         using return_type = hardware_interface::return_type;
 
-        RCLCPP_SHARED_PTR_DEFINITIONS(LynxmotionServoHardware)
+        RCLCPP_SHARED_PTR_DEFINITIONS(LssBusHardware)
 
         typedef enum {
             Unconfigured,
@@ -54,9 +53,9 @@ namespace lynxmotion {
             WritingCommands
         } BusState;
 
-        LynxmotionServoHardware();
+        LssBusHardware();
 
-        ~LynxmotionServoHardware() override;
+        ~LssBusHardware() override;
 
         /* TODO to get to parity with old LSS joint controller:
          *   PARAMETERS   required => offsets, inverts
@@ -104,7 +103,6 @@ namespace lynxmotion {
 
         class CommandData {
         public:
-            std::vector<double> position;
             std::vector<double> effort;
             std::vector<double> stiffness;
         };
@@ -130,9 +128,18 @@ namespace lynxmotion {
         std::vector<std::string> hw_joints;
         std::vector<short> hw_joint_bus_id;
         lss::DeviceIndex hw_joint_index;
+        lss::DeviceIndex hw_joint_index_inverted;   // the inverse of
+                                                    // hw_joint_index (cached)
         std::vector<unsigned long> hw_joint_flags;
 
         StateData state_;
+
+        // Position is always sent and we can optimize it by directly binding
+        // our position command to Request collection
+        std::vector<double> command_position_;
+        std::vector<lss::Request> command_position_lss_;
+
+        // other commands are only sent if change is detected
         CommandData command_;
 
         // LSS bus hardware interface

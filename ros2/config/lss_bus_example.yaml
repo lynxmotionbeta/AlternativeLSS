@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 15  # Hz
+    update_rate: 10  # Hz
     diagnostic_period: 1
 
     forward_position_controller:
@@ -15,15 +15,15 @@ controller_manager:
 forward_position_controller:
   ros__parameters:
     joints:
-      - J28
-      - J29
+      - J0
+      - J5
     interface_name: effort
 
 position_trajectory_controller:
   ros__parameters:
     joints:
-      - J28
-      - J29
+      - J0
+      - J5
     interface_name: position
 
 lss_realtime:

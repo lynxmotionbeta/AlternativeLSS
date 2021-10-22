@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>lynxmotion-lss</name>
+  <name>ros2_lss_bus</name>
   <version>0.9.0</version>
   <description>Ros2 Control system hardware driver for LSS servos</description>
   <maintainer email="colin@flyingeinstein.com">Colin F. MacKenzie</maintainer>

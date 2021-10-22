@@ -18,7 +18,7 @@
 #include <pluginlib/class_list_macros.hpp>
 
 PLUGINLIB_EXPORT_CLASS(
-        lynxmotion::LynxmotionServoHardware,
+        lynxmotion::LssBusHardware,
         hardware_interface::SystemInterface
 )
 
@@ -75,14 +75,13 @@ namespace lynxmotion {
     void stop_hardware_iop(LynxmotionServoHardware* p);
 #endif
 
-
-    LynxmotionServoHardware::LynxmotionServoHardware()
+    LssBusHardware::LssBusHardware()
         : active(false), baudrate(115200), Tk(0), quiescentCurrent(70), log_bus_warnings(false), log_bus_errors(true),
           reply_pending(false), remaining(0), overruns(0), success(0), failed(0), consecutive_failures(0), bus_state(Unconfigured)
     {
     }
 
-    LynxmotionServoHardware::~LynxmotionServoHardware() {
+    LssBusHardware::~LssBusHardware() {
         bus.close();
     }
 
@@ -167,7 +166,7 @@ namespace lynxmotion {
         }
     }
 
-    short LynxmotionServoHardware::extract_bus_id(const std::string& joint_name)
+    short LssBusHardware::extract_bus_id(const std::string& joint_name)
     {
         const char* p = joint_name.c_str();
         if(!joint_prefix.empty()) {
@@ -188,14 +187,15 @@ namespace lynxmotion {
         if(*ep != 0) {
             RCUTILS_LOG_ERROR_NAMED(lss_hardware_logger, "unsupported non-numeric characters at end of LSS joint name %s", joint_name.c_str());
             return -1;  // garbage at end of joint ID
-        } else if(id == 0 || id > 254) {
+        } else if(id >= lss::BroadcastID) {
             RCUTILS_LOG_ERROR_NAMED(lss_hardware_logger, "joint %s specifies a LSS bus IDs out of range, use 1 to 254", joint_name.c_str());
             return -1;  // garbage at end of joint ID
         }
         return id;
     }
 
-    LynxmotionServoHardware::return_type LynxmotionServoHardware::configure(const hardware_interface::HardwareInfo & info)
+    LssBusHardware::return_type
+    LssBusHardware::configure(const hardware_interface::HardwareInfo & info)
     {
         //connection_rate_.sleep();
         if (configure_default(info) != hardware_interface::return_type::OK) {
@@ -242,7 +242,7 @@ namespace lynxmotion {
         state_.velocity.resize(jc);
         state_.current.resize(jc);
 
-        command_.position.resize(jc);
+        command_position_.resize(jc);
         command_.effort.resize(jc);
         command_.stiffness.resize(jc, -3.0);
 
@@ -267,6 +267,8 @@ namespace lynxmotion {
             }
             hw_joint_flags.push_back(jflags);
 
+            command_position_lss_.emplace_back(bus_id, lss::command::D, 0);
+
             // query commands
             queries.emplace_back(bus_id, lss::command::QD);
             queries.emplace_back(bus_id, lss::command::QS);
@@ -289,7 +291,8 @@ namespace lynxmotion {
     }
 
 
-    std::vector<hardware_interface::StateInterface> LynxmotionServoHardware::export_state_interfaces()
+    std::vector<hardware_interface::StateInterface>
+    LssBusHardware::export_state_interfaces()
     {
         std::vector<hardware_interface::StateInterface> state_interfaces;
         for (uint i = 0; i < info_.joints.size(); i++) {
@@ -316,7 +319,8 @@ namespace lynxmotion {
         return state_interfaces;
     }
 
-    std::vector<hardware_interface::CommandInterface> LynxmotionServoHardware::export_command_interfaces()
+    std::vector<hardware_interface::CommandInterface>
+    LssBusHardware::export_command_interfaces()
     {
         std::vector<hardware_interface::CommandInterface> command_interfaces;
         for (uint i = 0; i < info_.joints.size(); i++) {
@@ -324,7 +328,7 @@ namespace lynxmotion {
                     hardware_interface::CommandInterface(
                             info_.joints[i].name,
                             hardware_interface::HW_IF_POSITION,
-                            &command_.position[i]));
+                            &command_position_[i]));
             command_interfaces.emplace_back(
                     hardware_interface::CommandInterface(
                             info_.joints[i].name,
@@ -340,7 +344,7 @@ namespace lynxmotion {
         return command_interfaces;
     }
 
-    LynxmotionServoHardware::return_type LynxmotionServoHardware::start()
+    LssBusHardware::return_type LssBusHardware::start()
     {
         // open the LSS bus port
         lss::platform::ChannelDriverError bus_err
@@ -383,6 +387,7 @@ namespace lynxmotion {
             state_reply.emplace_back(j, lss::command::QC);
             state_reply.emplace_back(j, lss::command::QS);
         }
+        hw_joint_index_inverted = hw_joint_index.invert();
 
         // use broadcast slots to query for state
         bus.write_slot_config(hw_joint_index);
@@ -390,10 +395,12 @@ namespace lynxmotion {
         state_request.emplace_back(lss::BroadcastID, lss::command::QC);
         state_request.emplace_back(lss::BroadcastID, lss::command::QS);
 
+        assert(command_position_.size() == command_position_lss_.size());
+
         return return_type::OK;
     }
 
-    LynxmotionServoHardware::return_type LynxmotionServoHardware::stop()
+    LssBusHardware::return_type LssBusHardware::stop()
     {
         status_ = hardware_interface::status::STOPPED;
 
@@ -407,8 +414,7 @@ namespace lynxmotion {
         return hardware_interface::return_type::OK;
     }
 
-
-    LynxmotionServoHardware::return_type LynxmotionServoHardware::read()
+    LssBusHardware::return_type LssBusHardware::read()
     {
       int n;
         if(reply_pending) {
@@ -419,7 +425,9 @@ namespace lynxmotion {
               // in our state_reply may not have been parsed, we'll just
               // catch'em the next round.
               if(preq->flags.parsed) {
-                size_t idx = hw_joint_index[preq->id];
+                // resolve the joint ID to our joint array index
+                size_t idx = hw_joint_index_inverted[preq->id];
+
                 switch (preq->command) {
                   case lss::command::QD:
                     state_.position[idx] = lss_degrees_to_radians(preq->args[0]);
@@ -452,8 +460,27 @@ namespace lynxmotion {
         //return_type::ERROR;
     }
 
-    LynxmotionServoHardware::return_type LynxmotionServoHardware::write()
+    LssBusHardware::return_type LssBusHardware::write()
     {
+      // convert positions from Ros to Lss
+      for(size_t i=0; i < command_position_.size(); i++) {
+        auto& dev = command_position_lss_[i];
+        bool enabled = command_.effort[i] > 0.0;
+        if(enabled) {
+          // send a position update
+          dev.command = lss::command::D;
+          dev.nargs = 1;
+          dev.args[0] = radians_to_lss_degrees(command_position_[i]);
+        } else {
+          // send the limp command
+          dev.command = lss::command::L;
+          dev.nargs = 0;
+        }
+      }
+
+      // send the positions to the bus
+      bus.write(command_position_lss_);
+
         // write values from the command buffer to the command realtime buffer
         // non-realtime write access
 #if 0
@@ -465,7 +492,7 @@ namespace lynxmotion {
 #endif
     }
 
-    void LynxmotionServoHardware::calibrate(humanoid_model_msgs::msg::JointCalibration::SharedPtr msg) {
+    void LssBusHardware::calibrate(humanoid_model_msgs::msg::JointCalibration::SharedPtr) {
 #if 0
         // calibration data
         std::vector<short> jointOrdinals;

@@ -1,5 +1,5 @@
 #cmake_minimum_required(VERSION 3.5)
-#project(ros2_lss_bus)
+project(ros2_lss_bus)
 
 # Default to C99
 #if(NOT CMAKE_C_STANDARD)
@@ -70,16 +70,16 @@ ament_target_dependencies(ros2_lss_bus
 #  "rclcpp"
 #  "sensor_msgs")
 
-pluginlib_export_plugin_description_file(hardware_interface ros2_lss_bus.xml)
-
 ## EXPORTS
 ament_export_targets(ros2_lss_bus_exports HAS_LIBRARY_TARGET)
+
+pluginlib_export_plugin_description_file(hardware_interface ros2_lss_bus.xml)
 
 ament_export_include_directories(
     include
 )
 ament_export_libraries(
-    ros2_lss_bus lss-bus-static
+    ros2_lss_bus lss-bus-static lynxmotion-lss
 )
 ament_export_dependencies(
     hardware_interface
@@ -89,6 +89,8 @@ ament_export_dependencies(
     diagnostic_msgs
     humanoid_model_msgs
 )
+
+ament_package()
 
 install(
     TARGETS ros2_lss_bus lss-bus-static
@@ -104,8 +106,7 @@ install(
 )
 install(
     DIRECTORY config urdf launch
-    DESTINATION share/ros2_lss_bus
+    DESTINATION share/${PROJECT_NAME}
 )
 
-ament_package()
 

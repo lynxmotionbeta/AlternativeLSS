@@ -5,12 +5,12 @@
   <xacro:macro name="rrbot_lss_hardware_position" params="name">
     <ros2_control name="${name}" type="system">
       <hardware>
-        <plugin>lynxmotion/LynxmotionServoHardware</plugin>
+        <plugin>lynxmotion/LssBus</plugin>
         <param name="port">/dev/ttyUSB0</param>
-        <param name="baudrate">500000</param>
+        <param name="baudrate">921600</param>
         <param name="prefix">J</param>
       </hardware>
-      <joint name="J28">
+      <joint name="J0">
         <command_interface name="position">
           <param name="min">-1800</param>
           <param name="max">1800</param>
@@ -19,7 +19,7 @@
         <state_interface name="effort"/>
         <state_interface name="current"/>
       </joint>
-      <joint name="J29">
+      <joint name="J5">
         <command_interface name="position">
           <param name="min">-1800</param>
           <param name="max">1800</param>
