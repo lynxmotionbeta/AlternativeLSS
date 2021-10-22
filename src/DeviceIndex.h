@@ -73,6 +73,8 @@ public:
 
   bool append(uint8_t id);
 
+  inline uint8_t count() const { return count_; }
+
   inline bool contains(uint8_t id) const {
     return servo_index_[id] != 255;
   }

@@ -41,7 +41,7 @@ DeviceIndex DeviceIndex::invert() const {
   DeviceIndex inverted;
   inverted.is_inverted_ = !is_inverted_;
   for(auto i = begin(), _i = end(); i!=_i; i++) {
-    inverted[servo_index_[i.key()]] = i.value();
+    inverted[i.value()] = i.key();
     inverted.count_++;
   }
   return inverted;
