@@ -289,7 +289,7 @@ namespace lynxmotion {
 
           // todo: how are joints named in config?
           RCUTILS_LOG_INFO_NAMED(lss_hardware_logger,
-               "  Joint %s  id:%d min:%4.3f max:%4.3f\n",
+               "  Joint %s  id:%d min:%4.3f max:%4.3f",
                  jcfg.name.c_str(), jcfg.bus_id,
                  jcfg.position.min, jcfg.position.max);
 
