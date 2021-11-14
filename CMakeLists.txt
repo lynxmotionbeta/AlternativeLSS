@@ -38,7 +38,7 @@ if(WITH_LIBFTDI)
     endif()
 endif()
 
-if(WITH_ROS AND DEFINED ENV{ROS_VERSION} AND DEFINED ENV{COLCON_PREFIX_PATH})
+if(WITH_ROS AND DEFINED ENV{ROS_VERSION})
     message(STATUS "Ros2 environment found, configuring ROS controls component")
     set(ENABLE_ROS2 1)
 endif()
