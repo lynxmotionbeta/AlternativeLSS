@@ -495,9 +495,18 @@ namespace lynxmotion {
         bool enabled = command_.effort[i] > 0.0;
         if(enabled) {
           // send a position update
+          const auto& joint_cfg = hw_joints[i];
+
+          // ensure position is within limits
+          auto position = command_position_[i];
+          if(position < joint_cfg.position.min)
+            position = joint_cfg.position.min;
+          else if(position > joint_cfg.position.max)
+            position = joint_cfg.position.max;
+
           dev.command = lss::command::D;
           dev.nargs = 1;
-          dev.args[0] = radians_to_lss_degrees(command_position_[i]);
+          dev.args[0] = radians_to_lss_degrees(position);
         } else {
           // send the limp command
           dev.command = lss::command::L;
