@@ -21,7 +21,7 @@
 
 
 /******* joint calibration interface *******/
-#include <humanoid_model_msgs/msg/joint_calibration.hpp>
+//#include <humanoid_model_msgs/msg/joint_calibration.hpp>
 
 /******* Lynxmotion library *******/
 #include <DeviceArray.h>
@@ -165,7 +165,7 @@ namespace lynxmotion {
 
         BusState bus_state; // current loop task/state
 
-        void calibrate(humanoid_model_msgs::msg::JointCalibration::SharedPtr msg);
+//        void calibrate(humanoid_model_msgs::msg::JointCalibration::SharedPtr msg);
 
         //inline rclcpp::Logger get_logger() { return rclcpp::get_logger("lss_hardware"); }
     };

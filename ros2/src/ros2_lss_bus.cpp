@@ -492,8 +492,8 @@ namespace lynxmotion {
 #endif
     }
 
-    void LssBusHardware::calibrate(humanoid_model_msgs::msg::JointCalibration::SharedPtr) {
 #if 0
+    void LssBusHardware::calibrate(humanoid_model_msgs::msg::JointCalibration::SharedPtr) {
         // calibration data
         std::vector<short> jointOrdinals;
         std::vector<double> newOriginDegrees;
@@ -651,8 +651,8 @@ namespace lynxmotion {
             // place the prepared transaction into the queue
             queue(qtx);
         }
-#endif
     }
+#endif
 
 #if 0
     unsigned long LynxmotionServoHardware::read_state(RealtimeArgs& args) {

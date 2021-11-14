@@ -4,13 +4,13 @@ project(lynxmotion-lss)
 
 option(WITH_SHARED "enable building of the shared library" ON)
 option(WITH_STATIC "enable building of the static library" ON)
-option(WITH_LEGACY "compile the legacy LSS library" ON)
+option(WITH_LEGACY "compile the legacy LSS library" OFF)
 option(STATIC_LINKAGE "link examples and tests to the static lib (default: shared linkage)" ON)
 option(WITH_DOCS "enable doxygen for generation of code documentation" OFF)
 option(SANITIZE "enable sanitize flags if available providing memory leak and other bad programmer errors" OFF)
 option(EFENCE "enable Electric Fence debugging by linking to lfence library" OFF)
 option(WITH_LIBFTDI "enable building of the libftdi user-space serial driver for LssChannel" OFF)
-option(WITH_COMPLIANCE "include Compliant Joint functionality" ON)
+option(WITH_COMPLIANCE "include Compliant Joint functionality" OFF)
 option(WITH_ROS "compile Ros2 controls plugins if colcon is detected" ON)
 
 # check if we are running as a ROS colcon package
@@ -104,6 +104,8 @@ if(SANITIZE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SANITIZE_OPTIONS}")
     message(STATUS "warning: enabling sanitize testing, remember to disable for deployment")
 endif()
+
+add_compile_options(-Wno-missing-field-initializers)
 
 
 set(LYNXMOTIONLSS_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "Location of LynxmotionLSS source")
