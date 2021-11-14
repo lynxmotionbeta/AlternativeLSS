@@ -250,36 +250,63 @@ namespace lynxmotion {
         std::vector<lss::Request> queries;
         std::vector<lss::Request> commands;
         for (auto j: info.joints) {
-            auto bus_id = extract_bus_id(j.name);
+          // add a new joint to the collection and get the reference
+          hw_joints.emplace_back();
+          auto& jcfg = hw_joints.back();
 
-            hw_joints.push_back(j.name);
-            hw_joint_bus_id.push_back(bus_id);
+          jcfg.name = j.name;
 
-            // todo: how are joints named in config?
-            printf("adding lss servo %d\n", bus_id);
-
-            unsigned long jflags = 0;
-            for(const auto& p: j.parameters) {
-                if(p.first == "invert") {
-                    if(p.second=="true" || p.second=="True" || p.second=="1")
-                        jflags |= JF_INVERT;
-                }
+          // load parameters from the joints node
+          for(const auto& p: j.parameters) {
+            if(p.first == "id") {
+              // receiving the LSS bus ID from a parameter
+              jcfg.bus_id = ::strtod(p.second.c_str(), nullptr);
+            } else if(p.first == "invert") {
+              jcfg.invert = !p.second.empty()
+                  && (toupper(p.second[0])=='T' || p.second=="1");
             }
-            hw_joint_flags.push_back(jflags);
+          }
 
-            command_position_lss_.emplace_back(bus_id, lss::command::D, 0);
+          if(jcfg.bus_id <0)
+            jcfg.bus_id = extract_bus_id(j.name);
 
-            // query commands
-            queries.emplace_back(bus_id, lss::command::QD);
-            queries.emplace_back(bus_id, lss::command::QS);
-            queries.emplace_back(bus_id, lss::command::QC);
+          // load command interface config from the command_interface nodes
+          for(const auto& iface: j.command_interfaces) {
+            CommandInterfaceConfig* ci;
+            if(iface.name == "position")
+              ci = &jcfg.position;
+            else if(iface.name == "velocity")
+              ci = &jcfg.velocity;
+            else
+              ci = nullptr;
+            if(ci) {
+              if(!iface.min.empty())
+                ci->min = ::strtod(iface.min.c_str(), nullptr);
+              if(!iface.max.empty())
+                ci->max = ::strtod(iface.max.c_str(), nullptr);
+             }
+          }
 
-            // transmitting commands
-            commands.emplace_back(bus_id, lss::command::D);
-            //commands.emplace_back(bus_id, Lss::Command::MMD);
-            //commands.emplace_back(bus_id, Lss::Command::L);
-            // Angular Holding Stifness
-            // Angular Stiffness
+          // todo: how are joints named in config?
+          RCUTILS_LOG_INFO_NAMED(lss_hardware_logger,
+               "  Joint %s  id:%d min:%4.3f max:%4.3f\n",
+                 jcfg.name.c_str(), jcfg.bus_id,
+                 jcfg.position.min, jcfg.position.max);
+
+          // build our command and state LSS bus requests
+          command_position_lss_.emplace_back(jcfg.bus_id, lss::command::D, 0);
+
+          // query commands
+          queries.emplace_back(jcfg.bus_id, lss::command::QD);
+          queries.emplace_back(jcfg.bus_id, lss::command::QS);
+          queries.emplace_back(jcfg.bus_id, lss::command::QC);
+
+          // transmitting commands
+          commands.emplace_back(jcfg.bus_id, lss::command::D);
+          //commands.emplace_back(jcfg.bus_id, Lss::Command::MMD);
+          //commands.emplace_back(jcfg.bus_id, Lss::Command::L);
+          // Angular Holding Stifness
+          // Angular Stiffness
         }
 
         // todo: query bus for servo information?
@@ -376,16 +403,16 @@ namespace lynxmotion {
         hw_joint_index.clear();
         state_request.clear();
         state_reply.clear();
-        for(auto& j: hw_joint_bus_id) {
-            hw_joint_index.append(j);
+        for(auto& j: hw_joints) {
+            hw_joint_index.append(j.bus_id);
 
             // set the LED
-            bus.write(lss::Request(j, lss::command::LED, lss::Blue));
+            bus.write(lss::Request(j.bus_id, lss::command::LED, lss::Blue));
 
             // build the state reply message for all joints
-            state_reply.emplace_back(j, lss::command::QD);
-            state_reply.emplace_back(j, lss::command::QC);
-            state_reply.emplace_back(j, lss::command::QS);
+            state_reply.emplace_back(j.bus_id, lss::command::QD);
+            state_reply.emplace_back(j.bus_id, lss::command::QC);
+            state_reply.emplace_back(j.bus_id, lss::command::QS);
         }
         hw_joint_index_inverted = hw_joint_index.invert();
 
@@ -405,8 +432,8 @@ namespace lynxmotion {
         status_ = hardware_interface::status::STOPPED;
 
         // turn servos red
-        for(auto& j: hw_joint_bus_id) {
-            bus.write(lss::Request(j, lss::command::LED, lss::Red));
+        for(auto& j: hw_joints) {
+          bus.write(lss::Request(j.bus_id, lss::command::LED, lss::Red));
         }
 
         bus.close();

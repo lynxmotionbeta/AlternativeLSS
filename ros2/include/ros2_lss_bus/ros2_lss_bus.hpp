@@ -36,9 +36,6 @@ namespace lynxmotion {
     constexpr const auto HW_IF_STIFFNESS = "stiffness";
     constexpr const auto HW_IF_CURRENT = "current";
 
-    // joint flags
-    constexpr const auto JF_INVERT = (1 << 0);
-
     class LssBusHardware : public hardware_interface::BaseInterface<hardware_interface::SystemInterface> {
     public:
         using return_type = hardware_interface::return_type;
@@ -107,6 +104,30 @@ namespace lynxmotion {
             std::vector<double> stiffness;
         };
 
+        class CommandInterfaceConfig {
+        public:
+          inline CommandInterfaceConfig()
+          : min(-1.0), max(1.0)
+          {}
+
+          double min, max;
+        };
+        class JointConfig {
+        public:
+          inline JointConfig()
+              : bus_id(-1), invert(false)
+          {}
+
+          std::string name;
+          short bus_id;
+
+          // joint parameters
+          bool invert;
+
+          CommandInterfaceConfig position;
+          CommandInterfaceConfig velocity;
+        };
+
         // this flag is controlled by the start/stop methods
         bool active;
 
@@ -125,12 +146,12 @@ namespace lynxmotion {
 
 
         // joints
-        std::vector<std::string> hw_joints;
-        std::vector<short> hw_joint_bus_id;
+        std::vector<JointConfig> hw_joints;
+        //std::vector<short> hw_joint_bus_id;
         lss::DeviceIndex hw_joint_index;
         lss::DeviceIndex hw_joint_index_inverted;   // the inverse of
                                                     // hw_joint_index (cached)
-        std::vector<unsigned long> hw_joint_flags;
+        //std::vector<unsigned long> hw_joint_flags;
 
         StateData state_;
 
@@ -154,7 +175,8 @@ namespace lynxmotion {
 //        rclcpp::GenericRate<std::chrono::system_clock> connection_rate_;
 
         short extract_bus_id(const std::string& joint_name);
-        inline bool is_inverted(size_t jointOrdinal) const { return hw_joint_flags[jointOrdinal] & JF_INVERT; }
+        inline bool is_inverted(size_t jointOrdinal) const
+            { return hw_joints[jointOrdinal].invert; }
 
     protected:
         size_t remaining;
