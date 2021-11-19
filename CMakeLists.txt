@@ -11,7 +11,7 @@ option(SANITIZE "enable sanitize flags if available providing memory leak and ot
 option(EFENCE "enable Electric Fence debugging by linking to lfence library" OFF)
 option(WITH_LIBFTDI "enable building of the libftdi user-space serial driver for LssChannel" OFF)
 option(WITH_COMPLIANCE "include Compliant Joint functionality" OFF)
-option(WITH_ROS "compile Ros2 controls plugins if colcon is detected" ON)
+option(WITH_ROS "compile Ros2 controls plugins if colcon is detected" OFF)
 
 # check if we are running as a ROS colcon package
 if(DEFINED ENV{COLCON_PREFIX_PATH})
@@ -38,10 +38,10 @@ if(WITH_LIBFTDI)
     endif()
 endif()
 
-if(WITH_ROS AND DEFINED ENV{ROS_VERSION})
-    message(STATUS "Ros2 environment found, configuring ROS controls component")
-    set(ENABLE_ROS2 1)
-endif()
+#if(WITH_ROS AND DEFINED ENV{ROS_VERSION})
+#    message(STATUS "Ros2 environment found, configuring ROS controls component")
+#    set(ENABLE_ROS2 1)
+#endif()
 
 # find our debugger
 get_filename_component(COMPILER_DIRECTORY "${CMAKE_CXX_COMPILER}" DIRECTORY)
