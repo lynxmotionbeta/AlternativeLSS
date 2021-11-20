@@ -89,8 +89,9 @@ set(LSS_BUS_LIBRARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE PATH "path to LSS bu
 #install(DIRECTORY platform
 #	DESTINATION include/${PROJECT_NAME}
 #)
-install(DIRECTORY src
-        TYPE INCLUDE FILES MATCHING PATTERN "*.h")
+install(DIRECTORY .
+        DESTINATION include/${PROJECT_NAME}
+        FILES_MATCHING PATTERN "*.h")
 install(TARGETS lss-bus-static lss-bus-shared
         EXPORT export_${PROJECT_NAME}
         RUNTIME DESTINATION "bin"
