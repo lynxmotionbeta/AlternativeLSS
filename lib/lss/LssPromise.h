@@ -6,9 +6,15 @@
 
 #include "LynxmotionLSS-Config.h"
 
+#ifdef ARDUINO
+//#include <functional.h>
+#include <assert.h>
+#else
 #include <functional>
 #include <memory>
 #include <cassert>
+#endif
+
 
 typedef enum { Unresolved, Resolved, Rejected } PromiseState;
 

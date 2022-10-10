@@ -1,7 +1,11 @@
 
 #pragma once
 
+#ifdef ARDUINO
+#include <stdint.h>
+#else
 #include <cstdint>
+#endif
 
 #include "LynxmotionLSS-Config.h"
 #include "LssCommon.h"

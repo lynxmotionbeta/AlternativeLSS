@@ -9,7 +9,11 @@
 #include "LssPromise.h"
 #include "LssCommunication.h"
 
+#if ARDUINO
+#include <vector.h>
+#else
 #include <vector>
+#endif
 
 #include <algorithm>
 
