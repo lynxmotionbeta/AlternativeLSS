@@ -1,0 +1,135 @@
+#!/bin/bash
+
+PKG_NAME=AlternativeLSS
+INSTALL_PATH=~/Arduino/libraries/$PKG_NAME
+
+SOURCE_PATH=$(dirname $(realpath $(dirname $0)))
+DEFAULT_PKG_ROOT=/tmp/lynxmotion/pkg/$PKG_NAME
+
+CP="cp"
+CP_R="cp -r"
+MKDIR="mkdir"
+
+die()
+{
+    echo $*
+    exit -1
+}
+
+link() {
+    if [ -f "$2" -a ! -L "$2" ]; then
+      echo "not overwriting regular file $2 with a symlink"
+      return 0
+    fi
+    ln -sf $1 $2
+}
+
+install_file()
+{
+    [[ -d $INSTALL_PATH ]] || die "install path $INSTALL_PATH not found"
+    [[ -e $SOURCE_PATH/$1 ]] || die "source file $SOURCE_PATH/$1 not found"
+    if [[ -z "$2" ]]; then
+      $CP $SOURCE_PATH/$1 $INSTALL_PATH/$1
+    else
+      $CP $SOURCE_PATH/$1 $INSTALL_PATH/$2
+    fi
+}
+
+install_files()
+{
+    src_glob=${@:1:$#-1}
+    dst_dir=${@:$#}
+    #echo "glob: |$src_glob|"
+    #echo "dest: $dst_dir"
+    for sf in $SOURCE_PATH/$src_glob; do
+      #install_file $sf
+      sfile=${sf/#$SOURCE_PATH\//}
+      dfile=$(basename $sf)
+      echo "install file $sf: $sfile => $dst_dir:$dfile"
+      install_file $sfile $dst_dir/$dfile
+    done
+    #find $SOURCE_PATH -name "$1"
+}
+
+install_mkdir()
+{
+    [[ -d $INSTALL_PATH ]] || die "install path $INSTALL_PATH not found"
+    $MKDIR -p $INSTALL_PATH/$1
+}
+
+install_dir()
+{
+    [[ -d $INSTALL_PATH ]] || die "install path $INSTALL_PATH not found"
+    [[ -e $SOURCE_PATH/$1 ]] || die "source file $SOURCE_PATH/$1 not found"
+    if [[ -z "$2" ]]; then
+      dst=$INSTALL_PATH/$1
+    else
+      dst=$INSTALL_PATH/$2
+    fi
+    $CP_R $SOURCE_PATH/$1 $dst
+}
+
+install_recursive()
+{
+    [[ -d $INSTALL_PATH ]] || die "install path $INSTALL_PATH not found"
+    [[ -e $SOURCE_PATH/$1 ]] || die "source file $SOURCE_PATH/$1 not found"
+    if [[ -z "$2" ]]; then
+      dst=$INSTALL_PATH/$1
+    else
+      dst=$INSTALL_PATH/$2
+    fi
+    $CP_R $SOURCE_PATH/$1 $dst
+}
+
+clean()
+{
+    [[ -z "$INSTALL_PATH" ]] && die 'install path not set'
+    [[ -e "$INSTALL_PATH" ]] && rm -r $INSTALL_PATH/*
+}
+
+install()
+{
+    mkdir -p $INSTALL_PATH || die "cannot create destination"
+    [[ -d $INSTALL_PATH ]] || die "install path $INSTALL_PATH not found"
+    echo "installing from $SOURCE_PATH to $INSTALL_PATH"
+    install_mkdir src
+    install_mkdir src/analytics
+    install_dir examples/arduino examples
+    install_file library.properties
+    install_file platformio.ini
+    install_file LICENSE
+    install_file keywords.txt
+    install_file README.md
+    echo installing headers
+    install_files lib/lss/*.h src
+    echo installing source files
+    install_files lib/lss/*.cpp src
+    echo installing analytics
+    install_files lib/lss/analytics/*.h src/analytics
+    echo installing platform specific code
+    install_files lib/lss/platform/arduino/* src
+}
+
+develop()
+{
+    # install all files as soft links to files in the source dir
+    CP=link
+    CP_R=link
+
+    # install as normal in the Arduino libraries directory
+    install $*
+
+    # create a file to indicate to Arduino we want the library dir to be writable
+    # (So you can open an example and save it without copying it)
+    touch $INSTALL_PATH/.development
+}
+
+package()
+{
+    [[ -d "$DEFAULT_PKG_ROOT" ]] && rm -r "$DEFAULT_PKG_ROOT" || mkdir -p "$DEFAULT_PKG_ROOT" || die "cannot create package directory $DEFAULT_PKG_ROOT"
+    install $*
+}
+
+clean
+develop $*
+
