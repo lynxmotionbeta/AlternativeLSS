@@ -99,6 +99,7 @@ endif()
 
 if(WITH_ROS)
     find_package(ament_cmake REQUIRED)
+    find_package(Catch2 REQUIRED)
 endif()
 
 set(LYNXMOTIONLSS_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "Location of LynxmotionLSS source")
@@ -111,7 +112,6 @@ add_subdirectory(examples)
 include_directories(lynxmotion-lss/analytics)
 
 if(WITH_ROS)
-
     ament_export_include_directories(include)
     ament_export_libraries(lss-static lss-shared)
     ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
