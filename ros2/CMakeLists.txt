@@ -19,6 +19,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../cmake)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(Catch2 REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -87,7 +88,7 @@ ament_export_dependencies(
     rclcpp
     #    humanoid_model_msgs
     diagnostic_msgs
-    humanoid_model_msgs
+    # humanoid_model_msgs
 )
 
 ament_package()
@@ -108,5 +109,3 @@ install(
     DIRECTORY config urdf launch
     DESTINATION share/${PROJECT_NAME}
 )
-
-
