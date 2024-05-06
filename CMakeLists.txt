@@ -12,6 +12,7 @@ option(EFENCE "enable Electric Fence debugging by linking to lfence library" OFF
 option(WITH_LIBFTDI "enable building of the libftdi user-space serial driver for LssChannel" OFF)
 option(WITH_COMPLIANCE "include Compliant Joint functionality" OFF)
 option(WITH_ROS "compile Ros2 controls plugins if colcon is detected" OFF)
+option(WITH_TESTS "enable building tests" OFF)
 
 # check if we are running as a ROS colcon package
 if(DEFINED ENV{COLCON_PREFIX_PATH})
@@ -91,7 +92,10 @@ if(WITH_DOCS)
 endif(WITH_DOCS)
 
 # attempt to find catch2 for unit tests
-find_package(Catch2 REQUIRED)
+if(WITH_TESTS)
+    find_package(Catch2 REQUIRED)
+    add_subdirectory(tests)
+endif(WITH_DOCS)
 
 if(EFENCE)
     add_definitions(-DEFENCE)
@@ -115,7 +119,6 @@ add_subdirectory(src)
 if(WITH_LEGACY)
     add_subdirectory(legacy)
 endif(WITH_LEGACY)
-# add_subdirectory(tests)
 add_subdirectory(examples)
 
 if(ENABLE_ROS2)
