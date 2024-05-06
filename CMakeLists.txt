@@ -95,7 +95,7 @@ endif(WITH_DOCS)
 if(WITH_TESTS)
     find_package(Catch2 REQUIRED)
     add_subdirectory(tests)
-endif(WITH_DOCS)
+endif(WITH_TESTS)
 
 if(EFENCE)
     add_definitions(-DEFENCE)
