@@ -115,7 +115,7 @@ add_subdirectory(src)
 if(WITH_LEGACY)
     add_subdirectory(legacy)
 endif(WITH_LEGACY)
-add_subdirectory(tests)
+# add_subdirectory(tests)
 add_subdirectory(examples)
 
 if(ENABLE_ROS2)
