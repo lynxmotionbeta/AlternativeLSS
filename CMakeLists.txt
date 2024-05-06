@@ -105,6 +105,11 @@ if(SANITIZE)
     message(STATUS "warning: enabling sanitize testing, remember to disable for deployment")
 endif()
 
+if(WITH_ROS)
+    find_package(ament_cmake REQUIRED)
+    find_package(Catch2 REQUIRED)
+endif()
+
 add_compile_options(-Wno-missing-field-initializers)
 
 
